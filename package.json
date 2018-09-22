@@ -1,0 +1,42 @@
+{
+  "name": "NDTMobile",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "cordova-android": "^6.3.0",
+    "cordova-ios": "4.2.0",
+    "cordova-plugin-compat": "^1.2.0",
+    "cordova-plugin-file": "^4.3.3",
+    "cordova-plugin-network-information": "^2.0.1",
+    "cordova-plugin-whitelist": "1.2.2",
+    "cordova-windows": "4.4.2"
+  },
+  "devDependencies": {
+    "cordova": "^7.1.0",
+    "jquery": "^3.3.1",
+    "webpack": "^4.16.2",
+    "webpack-cli": "^3.0.8"
+  },
+  "scripts": {
+    "crgen": "crgen -p ios android",
+    "build": "webpack --mode development && cordova run android",
+    "deploy": "webpack --mode production"
+  },
+  "cordova": {
+    "platforms": [
+      "ios",
+      "windows",
+      "android"
+    ],
+    "plugins": {
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-network-information": {},
+      "cordova-plugin-file": {}
+    }
+  },
+  "-vs-binding": {
+    "BeforeBuild": [
+      "build"
+    ]
+  }
+}

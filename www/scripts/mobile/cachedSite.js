@@ -4,14 +4,14 @@ var $ = require('jquery');
 // Assume only need 1 file of each, concat all incoming of type;
 var defaultFileName = "app";
 var itemExtMimes = {
-    html: "app.html",
-    js: "app.js",
-    css: "app.css",
-    json: "app.json"
+    html: "text/html",
+    js: "application/javascript",
+    css: "text/css",
+    json: "application/json"
 };
 var versionFile = "version.txt";
 
-var writeFile = function (fs, fileName, contentBlob, isReplace) {
+var writeFile = function (fs, fileName, contentBlob, isAppend) {
     return new Promise(function (res, rej) {
         fs.getFile(fileName, { create: true, exclusive: false }, function (fe) {
             console.log("fileEntry is file?" + fe.isFile.toString());
@@ -62,7 +62,7 @@ var readFile = function (fs, fileName) {
 
 var fs = null;
 var resolveFSHandle = function(){
-    var cacheLocation = 'd';//(window.cordova.platformId == 'android') ? cordova.file.dataDirectory : cordova.file.documentsDirectory;
+    var cacheLocation = cordova.file.externalApplicationStorageDirectory; //(window.cordova.platformId == 'android') ? cordova.file.dataDirectory : cordova.file.documentsDirectory;
     return new Promise(function (res, rej) {
         if(fs) resolve(fs);
         window.resolveLocalFileSystemURL(cacheLocation, function (fs) {
@@ -79,14 +79,16 @@ var resolveFSHandle = function(){
 var readCached = function () {
     return new Promise(function(res, rej){
         return resolveFSHandle().then(function(fs) {
-            res(Object.keys(itemExtMimes).forEach(function (key) {
+            var promiseCache = [];
+            Object.keys(itemExtMimes).forEach(function (key) {
                 var fileName = defaultFileName + '.' + key;
-                readFile(fs, fileName);
-            }));
+                promiseCache.push(readFile(fs, fileName));
+            })
+            res(Promise.all(promiseCache).then(function(values){ return values; }));
         })
     }).catch(function (d) {
         console.log("Cannot read applciation from cache");
-        rej(d);
+        Promise.reject(d);
     });
 }
 
@@ -97,22 +99,36 @@ var readVersion = function () {
         });
     }).catch(function (d) {
         console.log("Cannot read applciation version");
-        rej(d);
+        Promise.reject(d);
+        // res('No version');
+    });
+}
+var saveVersion = function (newVersion) {
+    return new Promise(function(res, rej){
+        return resolveFSHandle().then(function (fs) {
+            var dataObj = new Blob([newVersion.toString()], { type: "text/plain" });
+            res(writeFile(fs, versionFile, dataObj, false));
+        });
+    }).catch(function (d) {
+        console.log("Cannot cache applciation version");
+        Promise.reject(d);
     });
 }
 
 var clearCache = function () {
     return new Promise(function (res, rej) {
         return resolveFSHandle().then(function (fs) {
-            res(Object.keys(itemExtMimes).forEach(function (key) {
+            var promiseCache = [];
+            Object.keys(itemExtMimes).forEach(function (key) {
                 var fileName = defaultFileName + '.' + key;
-                dataObj = new Blob([''], { type: itemExtMimes[key] });
-                writeFile(fs, fileName, dataObj, false);
-            }));
+                var dataObj = new Blob([''], { type: itemExtMimes[key] });
+                promiseCache.push(writeFile(fs, fileName, dataObj, false));
+            });
+            res(Promise.all(promiseCache).then(function(values){ return values; }));
         });
     }).catch(function (d) {
         console.log("Cannot read applciation version");
-        rej(d);
+        Promise.reject(d);
     });
 }
 
@@ -123,15 +139,16 @@ var saveCache = function (fileType, contentString) {
             var fileName = defaultFileName + '.' + fileType;
             var dataObj = new Blob([contentString], { type: itemExtMimes[fileType] });
             res(writeFile(fs, fileName, dataObj, true));
-        })
+        });
     }).catch(function (d) {
         console.log("Cannot cache "+ fileType +" file");
-        rej(d);
+        Promise.reject(d);
     });
 }
 
 module.exports = {
     readCached: readCached,
     readVersion: readVersion,
-    saveCache: saveCache
+    saveCache: saveCache,
+    saveVersion: saveVersion
 }

@@ -24,9 +24,13 @@ var post = function (url, param) {
 };
 
 var initData = function () {
+    return new Promise(function(r,j){
+        r(1);
+    });
     return post(domain, {});
 };
 var getVersion = function () {
+    return "1";
     return post(domain + "/Version", {});
 };
 

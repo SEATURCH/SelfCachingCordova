@@ -2,6 +2,10 @@
 // Should include Arrays formatting and recusively calling itself with 'level' passed in.
 // The root level sshould have validation trigger.
 
+var ko = require('knockout');
+var $ = require('jquery');
+var editable = require('../helper/editable.js');
+
 ko.bindingHandlers.editableForm = {
     init: function (element, valueAccessor, allBindings, viewModel, context) {    
         var data = valueAccessor() || {};

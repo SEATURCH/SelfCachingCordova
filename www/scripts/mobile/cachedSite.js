@@ -77,8 +77,8 @@ var resolveFSHandle = function(){
 }
 
 var readCached = function () {
-    return new Promise(function(res, rej){
-        return resolveFSHandle().then(function(fs) {
+    return resolveFSHandle().then(function(fs) {
+        return new Promise(function(res, rej) {
             var promiseCache = [];
             Object.keys(itemExtMimes).forEach(function (key) {
                 var fileName = defaultFileName + '.' + key;
@@ -88,36 +88,31 @@ var readCached = function () {
         })
     }).catch(function (d) {
         console.log("Cannot read applciation from cache");
-        Promise.reject(d);
+        throw d;
     });
 }
 
 var readVersion = function () {
-    return new Promise(function(res, rej){
-        return resolveFSHandle().then(function (fs) {
-            res(readFile(fs, versionFile));
-        });
+    return resolveFSHandle().then(function (fs) {
+        return readFile(fs, versionFile);
     }).catch(function (d) {
         console.log("Cannot read applciation version");
-        Promise.reject(d);
-        // res('No version');
+        throw d;
     });
 }
 var saveVersion = function (newVersion) {
-    return new Promise(function(res, rej){
-        return resolveFSHandle().then(function (fs) {
-            var dataObj = new Blob([newVersion.toString()], { type: "text/plain" });
-            res(writeFile(fs, versionFile, dataObj, false));
-        });
+    return resolveFSHandle().then(function (fs) {
+        var dataObj = new Blob([newVersion.toString()], { type: "text/plain" });
+        return writeFile(fs, versionFile, dataObj, false);
     }).catch(function (d) {
         console.log("Cannot cache applciation version");
-        Promise.reject(d);
+        throw d;
     });
 }
 
 var clearCache = function () {
-    return new Promise(function (res, rej) {
-        return resolveFSHandle().then(function (fs) {
+    return resolveFSHandle().then(function (fs) {
+        return new Promise(function (res, rej) {
             var promiseCache = [];
             Object.keys(itemExtMimes).forEach(function (key) {
                 var fileName = defaultFileName + '.' + key;
@@ -128,7 +123,7 @@ var clearCache = function () {
         });
     }).catch(function (d) {
         console.log("Cannot read applciation version");
-        Promise.reject(d);
+        throw d;
     });
 }
 
@@ -138,11 +133,11 @@ var saveCache = function (fileType, contentString) {
         return resolveFSHandle().then(function (fs) {
             var fileName = defaultFileName + '.' + fileType;
             var dataObj = new Blob([contentString], { type: itemExtMimes[fileType] });
-            res(writeFile(fs, fileName, dataObj, true));
+            return writeFile(fs, fileName, dataObj, true);
         });
     }).catch(function (d) {
         console.log("Cannot cache "+ fileType +" file");
-        Promise.reject(d);
+        throw d;
     });
 }
 

@@ -1,3 +1,6 @@
+var ko = require('knockout');
+var $ = require('jquery');
+
 function editable(properties, data) {
     var self = this;
     self.editableProperties = ko.observableArray(properties);
@@ -118,7 +121,7 @@ function editable(properties, data) {
 
 }
 
-editable.extension = '_editValue';
+editable.propertyExtension = '_editValue';
 function nullEmptyEquals(a, b) {
     if (a === '' && (b === null || b === undefined)) {
         return true;
@@ -141,4 +144,9 @@ function createCopy(value) {
         return $.extend([], value);
 
     return value;
+}
+
+module.exports = {
+    editable: editable,
+    extension: editable.propertyExtension
 }

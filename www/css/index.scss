@@ -1,0 +1,118 @@
+@import "_Settings.scss";
+
+.app {
+    color: $base-text-color;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+
+    .page {
+        width: 100%;
+        height: calc(100% - 72px);
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+        transition: right 0.5s;
+        right: 0;
+        .split{
+            display: inline-block;
+            width:50%;
+            height:100%;
+        }
+    }
+}
+
+.form-root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+
+    .sidebar {
+        height: 100%;
+        width: $sidebar-width;
+
+        .sideItem {
+            font-sizeP: 1.5em;
+            border-bottom: 1px solid $border-bottom-color;
+
+            &.selected {
+                background: $highlighted-color;
+            }
+        }
+    }
+
+    .root-content {
+        width: calc(100% - #{$sidebar-width});
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+}
+
+.swipe {
+    visibility: hidden;
+    position: relative;
+    height: 100%;
+    .swipe-wrap {
+        height: 100%;
+        position: relative;
+    }
+    .swipe-wrap > div {
+        float: left;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .swipe-header {
+        width:100%;
+        box-shadow: 0px 0.1em 1em #dddddd;
+        display:flex;
+    }
+}
+
+
+// .property-form {
+//     .header {
+//         &.level-1 {
+//             font-size: 1.75em;
+//         }
+
+//         &.level-2 {
+//             font-size: 1.25em;
+//         }
+//     }
+
+//     .content {
+//         width: 100%;
+//         display: flex;
+//         flex-wrap: wrap;
+
+//         .isArray {
+//             &.Primitive {
+//                 display: flex;
+//                 flex-wrap: wrap;
+//             }
+//         }
+
+//         .property-template {
+//             max-width: 250px;
+
+//             .form-control {
+//                 border-top: none;
+//                 border-right: none;
+//                 border-left: none;
+//             }
+
+//             .custom-invalid {
+//                 .val-msg {
+//                     font-size: 0.75em;
+//                     color: $invalid-text-color;
+//                     white-space: pre-wrap;
+//                 }
+//             }
+//         }
+//     }
+// }

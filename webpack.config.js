@@ -17,19 +17,46 @@ module.exports =
 
 var config = {
     entry: [
+        './www/scripts/helper/reqs.js',
         './www/scripts/index.js'
     ],
     output: {
-        filename: './bundle/startup.js',
+        filename: './bundle/bundle.js',
         path: path.resolve(__dirname, 'www')
     },
     module: {
-        rules: []
+        rules: [
+            {
+                test: /\.scss$/,
+                loader: 'style-loader!css-loader!sass-loader'
+            },
+            {
+                test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
+                use: [{
+                    loader: 'file-loader',
+                    options: {
+                        name: '[name].[ext]',
+                        outputPath: './bundle/fonts/'
+                    }
+                }]
+            },
+            {
+                test: /\.html$/,
+                use: [{
+                    loader: 'html-loader',
+                    options: {
+                        minimize: true,
+                        removeComments: false
+                    }
+                }
+                ]
+            }
+        ]
     },
     plugins: [
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: JSON.stringify("NodeGlobal"),
+                NODE_ENV: JSON.stringify("DDDnpm"),
             },
         }),
     ]

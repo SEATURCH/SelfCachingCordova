@@ -1,32 +1,29 @@
 // Requests Api Page
-var powertech = require("./helper/_powertech.js");
-
-var domain = "http://10.21.10.104:1260";
-domain = "https://jsonplaceholder.typicode.com/todos/1";
+var domain = "http://10.21.10.104:59360";
 
 
-var initData = function () {
-    return powertech.post(domain + "/Init", {});
+var getTemplates = function () {
+	return Promise.all([ powertech.post(domain + "/Template/Templates", {})]).then(function(values){
+		return {
+			html: values[0]
+		}
+	});
+};
+var getVersion = function () {
+    return powertech.post(domain + "/Template/Version", {});
 };
 
-var sampleConfig = require('./sampleConfig.json');
-var sampleData = require('./sampleData.json');
-var sampelOrientation = require('./sampleOrientation.json');
-var sample = function () {
-    console.log(1111);
-	return new Promise(function(res, rej){
-		powertech.getJSON(domain)
-	    .finally(function(result) {
-            res({
-                orientation:sampelOrientation,
-	            config:sampleConfig,
-	            data: sampleData
-	        });
-	    });	
-	});
-    
+var upload = function () {
+    return powertech.post(domain + "/Template/Version", {});
+};
+
+var download = function () {
+    return powertech.post(domain + "/Template/Version", {});
 };
 
 module.exports = {
-	sample: sample
+	getTemplates: getTemplates,
+	getVersion: getVersion,
+	download: download,
+	upload: upload
 }

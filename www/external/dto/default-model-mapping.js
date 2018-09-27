@@ -1,12 +1,17 @@
-var ko = require('knockout');
-var powertech = require('./helper/_powertech.js');
-var edit = require('./helper/editable.js');
+// Add methods into constructor
+var appendPrototype = function(constructor, properties) {
+    for (prop in properties) {
+        if (properties.hasOwnProperty(prop)) {
+            constructor.prototype[prop] = properties[prop];
+        }
+    }
+}
 
 var defaultBinding = function(self, data, mapping) {
     ko.mapping.fromJS(data, mapping, self);
     var relevantDetails = mapping.relevantDetails;
     if (relevantDetails.length) { 
-        edit.editable.call(self, relevantDetails, data);
+        editable.call(self, relevantDetails, data);
     }
 }
 
@@ -18,7 +23,7 @@ function DefaultEditableModel(data, parent, mapping) {
         self.validation = new ValidationModel(self, mapping.validation);
 }
 
-powertech.appendPrototype(DefaultEditableModel, {
+appendPrototype(DefaultEditableModel, {
     // 'Saves' the editable object and any nested members with functionality in editable.js where it moves
     // _editValue into the model property observable. 
     deepSave: function () {
@@ -104,14 +109,10 @@ var parse = function(baseConfig, baseOrientation) {
 
     var allTypes = baseConfig;
     var allOrientation = baseOrientation;
-    var map = new mapping(baseConfig.root, baseOrientation.root);
+    var map = new mapping(baseConfig);
     return map;
 }
 
-
-module.exports = {
-    parseMap: parse
-}
 
 
 function ValidationModel(data, validation) {
@@ -172,7 +173,7 @@ function ValidationModel(data, validation) {
             var conditionMet = true;
             if (valOn.conditions instanceof Array) {
                 valOn.conditions.every(function (condition) {
-                    var conditionTarget = data[condition.target + edit.extension];
+                    var conditionTarget = data[condition.target + editable.extension];
                     conditionMet = conditionMet && validateFor[condition.type].call(self, conditionTarget, condition.args);
                     return conditionMet; // if conditionMet == false, breaks out of every
                 });
@@ -180,7 +181,7 @@ function ValidationModel(data, validation) {
             if (conditionMet) {
                 valOn.rules.every(function (rule) {
                     error = rule.error;
-                    success = success && validateFor[rule.type].call(self, data[propertyVal.property + edit.extension], rule.args);
+                    success = success && validateFor[rule.type].call(self, data[propertyVal.property + editable.extension], rule.args);
                     return success;
                 });
             }

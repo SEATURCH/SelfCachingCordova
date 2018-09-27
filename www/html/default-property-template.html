@@ -1,23 +1,25 @@
-﻿<div class="p-3" data-bind="css: { 'custom-invalid': $data.validationErrorMsg } ">
-    <!-- ko if: ko.unwrap($data.title) -->
-    <label class="m-0 w-100" data-bind="text: title"></label>
-    <!-- /ko -->
-    <!-- ko if: type == "string" -->
-    <input class="form-control" type="text" data-bind="value: editValue, event: { blur: validate }" />
-    <!-- /ko -->
-    <!-- ko if: type == "number" -->
-    <input class="form-control" type="number" data-bind="value: editValue, event: { blur: validate }" />
-    <!-- /ko -->
-    <!-- ko if: type == "options" -->
-    <select class="form-control" data-bind="options: listOptions, value: editValue, valueAllowUnset:true,  event: { change: validate }"></select>
-    <!-- /ko -->
-    <!-- ko if: type == "date" -->
-    <div class="form-control" type="text" data-bind="dateTimePicker: editValue" />
-    <!-- /ko -->
-    <!-- ko if: type == "time" -->
-    <div class="form-control" type="text" data-bind="dateTimePicker: editValue, mode:'time'" />
-    <!-- /ko -->
-    <!-- ko if: $data.validationErrorMsg -->
-    <div class="val-msg w-100" data-bind="text: validationErrorMsg"></div>
-    <!-- /ko -->
-</div>
+﻿<script id="default-property-template" type="text/html">
+    <div class="p-3" data-bind="css: { 'custom-invalid': $data.validationErrorMsg } ">
+        <!-- ko if: ko.unwrap($data.title) -->
+        <label class="m-0 w-100" data-bind="text: title"></label>
+        <!-- /ko -->
+        <!-- ko if: type == "string" -->
+        <input class="form-control" type="text" data-bind="value: editValue, event: { blur: validate }" />
+        <!-- /ko -->
+        <!-- ko if: type == "number" -->
+        <input class="form-control" type="number" data-bind="value: editValue, event: { blur: validate }" />
+        <!-- /ko -->
+        <!-- ko if: type == "options" -->
+        <select class="form-control" data-bind="options: listOptions, value: editValue, valueAllowUnset:true,  event: { change: validate }"></select>
+        <!-- /ko -->
+        <!-- ko if: type == "date" -->
+        <div class="form-control" type="text" data-bind="dateTimePicker: editValue" />
+        <!-- /ko -->
+        <!-- ko if: type == "time" -->
+        <div class="form-control" type="text" data-bind="dateTimePicker: editValue, mode:'time'" />
+        <!-- /ko -->
+        <!-- ko if: $data.validationErrorMsg -->
+        <div class="val-msg w-100" data-bind="text: validationErrorMsg"></div>
+        <!-- /ko -->
+    </div>
+</script>

@@ -1,7 +1,3 @@
-var ko = require('knockout');
-var $ = require('jquery');
-var editable = require('../helper/editable.js');
-
 ko.bindingHandlers.editableField = {
     init: function (element, valueAccessor, allBindings, viewModel, context) {    
         var config = valueAccessor();
@@ -13,8 +9,8 @@ ko.bindingHandlers.editableField = {
         var templateId = ko.unwrap(allBindings().templateId) || "default-property-template";
         var data = allBindings().data || ko.observable();
         
-
-        $(element).append(window.templates[templateId]);
+        var template = "#" + templateId + "Template";
+        $(element).append($('script'+template).html());
         
         var newScope =  new selectListPropertyModel(
             data,

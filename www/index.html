@@ -11,7 +11,7 @@
     <title>Hello World</title>
 </head>
 <body>
-    <div class="app">
+    <div class="app active">
         <nav class="navbar navbar-expand-sm navbar-light bg-light">
           <span class="navbar-brand" href="#">NDT Mobile</span>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,21 +42,33 @@
           </div>
         </nav>
         <div class="page">
-            <div class="split" data-bind="foreach:">
-                <div data-bind="staticTemplate:'vehicle-summary-tempalte.html'"><div>
+            <div class="split w-35" data-bind="foreach:[{prop: 1, DtoTypeName:'inspection-summary-template'}, {prop: 2, DtoTypeName:'inspection-summary-template'}]">
+                <div data-bind="text:function(){ console.log($data) }()"></div>
+                <div data-bind="dtoTemplate:$data"></div>
+                <!-- <div data-bind="dtoTemplate:{templateId: 'vehicle-summary-template', prop: 'pop1'}"></div> -->
             </div>
-            <div class="split" data-bind="swipableTabs:'image-swipe-template.html'">
+            <div class="split w-65 bg-info" data-bind="swipableTabs:[1,2,3,4], templateId:'image-swipe-template' ">
             </div>
         </div>
-        
-        <div class="d-none page">
-            <h1>Apache Cordova</h1>
-            <!-- ko with: data -->
-            <div class="w-100 h-100" data-bind="editableForm: $data, config: $data.config, orientation: $data.orientation, level: 1, templateId:'default-root-template'"></div>
-            <!-- /ko -->
-        </div>
-        
     </div>
+    <div class="app">
+        <nav class="navbar navbar-expand-sm navbar-light bg-light">
+          <a class="navbar-brand" href="#">
+            Back
+          </a>
+          <span class="navbar-brand" href="#">Opened Inspection</span>
+        </nav>
+        <!-- Form Loaded form -->
+        <div class="page bg-secondary"> 
+            <div data-bind="dtoTemplate:{prop: 1, DtoTypeName:'inspection-summary-template'} "></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="external/dto/network.js"></script>
+    <script type="text/javascript" src="external/dto/editable.js"></script>
+    <script type="text/javascript" src="external/dto/default-model-mapping.js"></script>
+    <script type="text/javascript" src="external/dto/dto-custom-bindings.js"></script>
+    
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="bundle/bundle.js"></script>
 </body>

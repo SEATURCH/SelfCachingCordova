@@ -1,30 +1,35 @@
-var ko = require('knockout');
-require('knockout-mapping');
-var $ = require('jquery');
-
-var powertech = require('./helper/_powertech.js');
-var defModels = require('./default-model-mapping.js');
-var requests = require('./requests.js');
-
+var req = require('./requests.js');
+var cache = require('./helper/cached.js');
+var authentication = require('./helper/authentication.js');
 
 function viewModel(initialData) {
     var self = this;
-    self.data = ko.observable();
+    self.dataList = ko.observable();
+    self.previewItem = ko.observable(null);
+    self.openedItem = ko.observable(null);
     self.config = null;
     self.orientation = null;
 }
 
-powertech.appendPrototype(viewModel, {
-    getInit: function (data) {
-        var self = this;
-        return requests.sample()
-            .then(function(res){
-                var mapping = defModels.parseMap(res.config, res.orientation);
-                var mapped = new ApplicationDataModel(res, mapping);
-                self.config = res.config;
-                self.orientation = res.orientation;
-                self.data(mapped);
+appendPrototype(viewModel, {
+    logout: function(data) {
+        return authentication.unauthenticate.then(function(){
         });
+    },
+    upload: function(data) {
+        return req.upload(data).then(function(){
+        });
+    },
+    download: function() {
+        return req.download().then(function() {
+        });
+    },
+    sortList: function(data) {
+
+    },
+    dataFromCache: function (data) {
+        var self = this;
+        var uId = authentication.currentUserId;
     }
 });
 

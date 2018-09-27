@@ -1,8 +1,12 @@
-<div class="swipe-wrap" data-bind="foreach: [1,2,3,4]">
-    <div>
-        <div class="swipe-header">
-            <h1 class="mr-4">Ids</h1>
-        </div>
-        <div class="w-100" data-bind="text:$data"></div>
-    </div>
-</div>
+<script id="image-swipe-template" type="text/html">
+	<div class="swipe-wrap" data-bind="foreach:{data: $data.items, afterRender: $data.afterRender }">
+	    <div class="justify-content-center align-items-center">
+	        <div class="body">
+	            <h5 data-bind="text:$data"></h5>
+	        </div>
+	        <div class="w-100 px-3 footer">
+	            <span class="mr-4">Ids</span>
+	        </div>
+	    </div>
+	</div>
+</script>

@@ -2,6 +2,12 @@
 //	it's own js file.
 // Ex. stylesheets, knockout custom-bindings (bindigns referenced in html)
 
+//Load Global libraries
+window.ko = require('knockout');
+window.Promise = require('bluebird');
+window.$ = require('jquery');
+window.moment = require('moment');
+
 // All styling
 require('bootstrap/scss/bootstrap.scss');
 var context = require.context("../../css", true, /^.*\.scss$/im);
@@ -18,9 +24,9 @@ contextJS.keys().forEach(function (key) {
 
 //// Binding templates
 var contextHTML = require.context("../../html", true, /^.*\.html$/im);
-var templates = {};
+var templates = [];
 contextHTML.keys().forEach(function (key) {
-    templates[key.match(/[^./]+(?=\.html)/g).pop()] = contextHTML(key);
+	templates.push(contextHTML(key));
 });
-window.templates = templates;
+$('body').append(templates.join('\n'));
 

@@ -1,0 +1,20 @@
+// Template scss
+
+// image-swipe-template.html
+#image-swipe-template {
+	.body {
+		width: 80%;
+	    height: 300px;
+	    display: flex;
+	    justify-content: center;
+	    align-items: center;
+		.image-item {
+			width:85%;
+		}
+	}
+	.footer {
+	    height: 25px;
+		line-height: 25px;
+		text-align: right
+	}
+}

@@ -1,6 +1,3 @@
-var ko = require('knockout');
-var moment = require('moment');
-
 var dateTimePicker = function (options) {
     // Mobile
     if(cordova) 

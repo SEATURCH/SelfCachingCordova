@@ -9,15 +9,15 @@ function editable(properties, data) {
             var name = property;
             var value = self.hasOwnProperty(name) ? self[name] : ko.observable();
             // self[name] = value;
-            self[name + editable.propertyExtension] = ko.observable(createCopy(ko.unwrap(value)));
+            self[name + editable.extension] = ko.observable(createCopy(ko.unwrap(value)));
 
 
             self[name].subscribe(function (newValue) {
                 //if (!ko.unwrap(self.isDirty)) {
-                    self[name + editable.propertyExtension](createCopy(newValue));
+                    self[name + editable.extension](createCopy(newValue));
                 //}
             });
-            self[name + editable.propertyExtension].subscribe(function (newValue) {
+            self[name + editable.extension].subscribe(function (newValue) {
                 var value = ko.unwrap(self[name]);
                 if (nullEmptyEquals(newValue, value)) {
                     self.changes.remove(name);
@@ -47,7 +47,7 @@ function editable(properties, data) {
         self.editableProperties(properties);
 
         oldProperties.forEach(function (name) {
-            delete self[name + editable.propertyExtension];
+            delete self[name + editable.extension];
         });
 
     }
@@ -69,7 +69,7 @@ function editable(properties, data) {
                 self[name](ko.unwrap(self[name]).filter(function (im) { return ko.unwrap(im.Inspection_Id); }));
             else { 
                 var revertValue = ko.unwrap(self[name]);
-                self[name + editable.propertyExtension](createCopy(revertValue));
+                self[name + editable.extension](createCopy(revertValue));
             }
         });
         self.changes([]);
@@ -89,7 +89,7 @@ function editable(properties, data) {
     self.completeSave = function () {
         self.changes().forEach(function (name) {
             if (name != "Images") { 
-                var saveValue = createCopy(ko.unwrap(self[name + editable.propertyExtension]));
+                var saveValue = createCopy(ko.unwrap(self[name + editable.extension]));
                 self[name](saveValue);
             }
         });
@@ -102,9 +102,9 @@ function editable(properties, data) {
         ko.unwrap(self.editableProperties).forEach(function (property) {
             name = property
             if (DateValues.indexOf(name) >= 0)
-                jsObject[name] = ko.unwrap(self[name + editable.propertyExtension]) != null && ko.unwrap(self[name + editable.propertyExtension]) != undefined ? moment(ko.unwrap(self[name + editable.propertyExtension])).format('YYYY-MM-DDTHH:mm:ss.sss') : null;
+                jsObject[name] = ko.unwrap(self[name + editable.extension]) != null && ko.unwrap(self[name + editable.extension]) != undefined ? moment(ko.unwrap(self[name + editable.extension])).format('YYYY-MM-DDTHH:mm:ss.sss') : null;
             else
-                jsObject[name] = ko.unwrap(self[name + editable.propertyExtension]);
+                jsObject[name] = ko.unwrap(self[name + editable.extension]);
         });
         $.each(jsObject, function (prop) {
             if (jsObject[prop] && $.isFunction(jsObject[prop])) {

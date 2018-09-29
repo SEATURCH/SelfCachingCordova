@@ -1,11 +1,9 @@
 ﻿var vm;
-var powertech;
-
+var knockoutScripts = {};
+var pageViewModel;
 $(function () {
     var initialData;
     var $dataQuery = $('#initial-data');
-    powertech = new network();
-    initDtoTemplate();
     if ($dataQuery && $dataQuery.length > 0) {
         var dataElement = $dataQuery[0];
         var data = dataElement.innerHTML;
@@ -17,28 +15,19 @@ $(function () {
   
 });
 
+
 function setup(initialData) {
     vm = new masterViewModel(initialData);
+    if ($.isFunction(pageViewModel)) pageViewModel(vm);
     ko.applyBindings(vm);
 
-
-    //$.getScript(initialData.ScriptsPath, function (data) {
-    //    var viewModelDefinition = window.viewModel;
-    //    if (viewModelDefinition) {
-
-    //        vm = new viewModelDefinition(initialData);
-    //        ko.applyBindings(vm);
-    //    }
-    //});
-
-   
 }
 
 function masterViewModel(initialData) {
     var self = this;
-    var mapping = parse(initialData.Definitions);
+    var mapped = baseMap(initialData.Data,initialData.Definitions);
 
 
-    self.data = ko.observable(initialData.Data);
+    self.data = ko.observable(mapped);
     self.definitions = ko.observable(initialData.Definitions);
 }

@@ -4,6 +4,7 @@
 
 //Load Global libraries
 window.ko = require('knockout');
+require('knockout-mapping');
 window.Promise = require('bluebird');
 window.$ = require('jquery');
 window.moment = require('moment');

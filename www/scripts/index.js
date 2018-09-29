@@ -1,9 +1,8 @@
 var cache = require('./helper/cached.js');
 
-var applicationMapping = require('./application-model.js');
-var vm = new applicationMapping.viewModel();
+var appModel = require('./application-model.js');
 
-window.viewModel = vm;
+window.viewmodel = new appModel.viewModel();
 window.pageviewmodel = {};
 var app = {
     // Application Constructor
@@ -23,12 +22,15 @@ var app = {
             $('body').append(rsrc.html);
             $('body').append('<script>' + (rsrc.js|| '') + '</script>');
             $('body').append('<style>' + (rsrc.css || '')  + '</style>');
+            window.config = rsrc.json;
+            if(window.config) window.configMapping = parse(window.config);
+            return viewmodel.initPageVM();
+        }).then(function(){
+            ko.applyBindings(viewmodel);
         }).catch(function() {
-            // alert("Application not initialized. Please make sure the app is loaded at least once with access to internet");
-            console.log("Application not initialized. Please make sure the app is loaded at least once with access to internet");
+            console.log("Application not initialized. Please make sure the app is loaded at least once with internet access");            
+            // alert("Application not initialized. Please make sure the app is loaded at least once with internet access");            
         });
-        ko.applyBindings(viewModel);
-        viewModel.getInit();
         console.log('Received Event: ' + id);
     }
 };

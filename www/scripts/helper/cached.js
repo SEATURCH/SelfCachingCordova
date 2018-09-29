@@ -1,7 +1,8 @@
 // Assume only need 1 file of each, concat all incoming of type;
 var req = require('../requests.js');
+var authentication = require('./authentication.js');
 
-var defaultFileName = "app";
+var templateFileName = "app";
 var itemExtMimes = {
     html: "text/html",
     js: "application/javascript",
@@ -9,11 +10,11 @@ var itemExtMimes = {
     json: "application/json"
 };
 var versionFile = "version.txt";
+var dataFileName = "data.json";
 
 var writeFile = function (fs, fileName, contentBlob) {
     return new Promise(function (res, rej) {
         fs.getFile(fileName, { create: true, exclusive: false }, function (fe) {
-            console.log("fileEntry is file?" + fe.isFile.toString());
             fe.createWriter(function (fileWriter) {
                 fileWriter.onwriteend = function () {
                     res("Successful write");
@@ -50,42 +51,47 @@ var readFile = function (fs, fileName) {
     });
 }
 
-var fs = null;
-var resolveFSHandle = function(){
-    var cacheLocation = cordova.file.externalApplicationStorageDirectory; //(window.cordova.platformId == 'android') ? cordova.file.dataDirectory : cordova.file.documentsDirectory;
+var FileSys = {};
+var resolveFSHandle = function(subdir){
+    var rootLocation = cordova.file.externalApplicationStorageDirectory; //(window.cordova.platformId == 'android') ? cordova.file.dataDirectory : cordova.file.documentsDirectory;
+    var children = subdir? subdir.split('/') : [];
+    var cacheLocation = rootLocation + subdir;
+
+    var getDir = function(currentFS, childrenDir){
+        if(childrenDir.length == 0 ) return currentFS;
+        else {
+            return new Promise(function(res, rej) {
+                var nextDir = childrenDir[0];
+                currentFS.getDirectory(nextDir, { create: true }, function (dirEntry) {
+                    childrenDir.shift();
+                    res({dirEntry: dirEntry, childrenDir: childrenDir});
+                }, function(err){
+                    console.log("Unable to resolve Local File System: " + nextDir);
+                    rej(new Error(err));
+                });
+            }).then(function(fs){
+                return getDir(fs.dirEntry, fs.childrenDir);
+            });
+        }
+    }
+
     return new Promise(function (res, rej) {
-        if(fs) resolve(fs);
-        window.resolveLocalFileSystemURL(cacheLocation, function (fs) {
-            console.log('file system open: ' + fs.name);
-            res(fs);
+        if(FileSys[cacheLocation]) res(FileSys[cacheLocation]);
+        window.resolveLocalFileSystemURL(rootLocation, function (root) {
+            res(root);
         }, function(err){
-            console.log("Unable to resolve Local File System");
+            console.log("Unable to root File System. Set as: " + rootLocation);
             rej(new Error(err));
         });
+    }).then(function(rootfs){
+        return getDir(rootfs, children);
+    }).then(function(targetfs){
+        FileSys[cacheLocation] = targetfs;
+        return targetfs;
     })
 
 }
 
-var readCachedResources = function () {
-    return resolveFSHandle().then(function(fs) {
-        var promiseCache = [];
-        Object.keys(itemExtMimes).forEach(function (key) {
-            var fileName = defaultFileName + '.' + key;
-            promiseCache.push(readFile(fs, fileName).then(function(res){
-                return {type: key, value: res};
-            }));
-        })
-        return Promise.all(promiseCache).then(function(values){
-            return values.reduce(function(result, item) {
-                result[item.type] = item.value;
-                return result;
-            }, {});
-        });
-    }).catch(function (d) {
-        console.log("Cannot read applciation from cache");
-        throw d;
-    });
-}
 
 var readVersion = function () {
     return resolveFSHandle().then(function (fs) {
@@ -109,7 +115,7 @@ var clearCache = function () {
     return resolveFSHandle().then(function (fs) {
         var promiseCache = [];
         Object.keys(itemExtMimes).forEach(function (key) {
-            var fileName = defaultFileName + '.' + key;
+            var fileName = templateFileName + '.' + key;
             var dataObj = new Blob([''], { type: itemExtMimes[key] });
             promiseCache.push(writeFile(fs, fileName, dataObj));
         });
@@ -121,13 +127,37 @@ var clearCache = function () {
 }
 
 // Save's 
-var saveCache = function (fileType, contentString) {
+var saveTemplates = function (retrieved) {
     return resolveFSHandle().then(function (fs) {
-        var fileName = defaultFileName + '.' + fileType;
-        var dataObj = new Blob([contentString], { type: itemExtMimes[fileType] });
-        return writeFile(fs, fileName, dataObj);
+        var savePromises = Object.keys(retrieved).map(function(key){
+            var fileName = templateFileName + '.' + key;
+            var dataObj = new Blob([JSON.stringify(retrieved[key])], { type: itemExtMimes[key] });
+            return writeFile(fs, fileName, dataObj);
+        });
+        return Promise.all(savePromises);
     }).catch(function (d) {
-        console.log("Cannot cache "+ fileType +" file");
+        console.log("Cannot cache templates files");
+        throw d;
+    });
+}
+
+var readTemplates = function () {
+    return resolveFSHandle().then(function(fs) {
+        var promiseCache = [];
+        Object.keys(itemExtMimes).forEach(function (key) {
+            var fileName = templateFileName + '.' + key;
+            promiseCache.push(readFile(fs, fileName).then(function(res){
+                return {type: key, value: res};
+            }));
+        })
+        return Promise.all(promiseCache).then(function(values){
+            return values.reduce(function(result, item) {
+                result[item.type] = item.value? JSON.parse(item.value): "";
+                return result;
+            }, {});
+        });
+    }).catch(function (d) {
+        console.log("Cannot read applciation from cache");
         throw d;
     });
 }
@@ -151,39 +181,52 @@ function checkConnection() {
 
 var retrieveResources = function() {
     if(checkConnection()){
-        return Promise.all([readVersion(), req.getVersion() ])
+        return Promise.all([Math.random(), req.getVersion() ])
+        // return Promise.all([readVersion(), req.getVersion() ])
         .catch(function(){
-            return readCachedResources();
+            return readTemplates();
         })
         .then(function(values){
             var newVersion = values[1];
-            if(values[0] == values[1]) return readCachedResources();
-            else
-                return req.getTemplates().then(function(retrieved){
-                    var savePromises = Object.keys(retrieved).map(function(key){
-                        return saveCache(key, retrieved[key]);
-                    });
-                    savePromises.push(saveVersion(newVersion))
-                    return Promise.all(savePromises).then(function(d){
-                        return retrieved;
-                    });
-                }); 
-        })
+            if(values[0] == values[1]) return readTemplates();
+            else return req.getTemplates().then(function(retrieved) {
+                return saveTemplates(retrieved).then(function() {
+                    return saveVersion(newVersion);
+                }).then(function(afterVersion){
+                    return retrieved;
+                });
+            });
+        });
     } else {
-        return readCachedResources();
+        return readTemplates();
     }
 }
 
-var getCachedData = function() {
+var readData = function() {
+    var subdir = authentication.currentUserId;
+    return resolveFSHandle(subdir).then(function(fs) {
+        return readFile(fs, dataFileName);
+    }).then(function(res) {
+        return JSON.parse(res || "[]");
+    }).catch(function (d) {
+        console.log("Cannot read data.json from '" + subdir + "' from cache");
+        throw d;
+    });
+};
 
-}
-
-var saveCachedData = function() {
-
-}
+var saveData = function(data) {
+    var subdir = authentication.currentUserId;
+    return resolveFSHandle(subdir).then(function (fs) {
+        var dataObj = new Blob([JSON.stringify(data)], { type: "application/json" });
+        return writeFile(fs, dataFileName, dataObj);
+    }).catch(function (d) {
+        console.log("Cannot save data '" + fileName + "' into cache");
+        throw d;
+    });
+};
 
 module.exports = {
     retrieveResources: retrieveResources,
-    getCachedData: getCachedData,
-    saveCachedData: saveCachedData
+    readData: readData,
+    saveData: saveData
 }

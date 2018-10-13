@@ -1,0 +1,49 @@
+input.validatable, select.validatable {
+  border-color: #dc3545;
+  color: #dc3545; }
+
+.validatable.msg {
+  color: #dc3545; }
+
+/*# sourceMappingURL=dtoFramework.css.map */
+.box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+
+select {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+
+.dropdown-item {
+    cursor: pointer;
+    min-height: 30px;
+}
+
+.dropdown-toggle {
+    width: 100%;
+    
+}
+
+.dropdown-toggle-content {
+    width:calc(100% - 10px);
+    display: inline-block;
+    text-align: left;
+    overflow: hidden;
+    margin-top: -.25rem;
+    margin-bottom: -.25rem;
+}
+
+.dropdown-unselected {
+   color: #91989d;
+}
+.container-fluid {
+    max-width: 1200px;
+}
+
+
+@media (max-width: 767.98px) {
+    .no-padding-sm {
+        padding: 0;
+    }
+
+}

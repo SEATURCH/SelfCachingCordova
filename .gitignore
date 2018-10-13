@@ -11,3 +11,5 @@ NDTMobile.jsproj
 NDTMobile.jsproj.user
 www/external/dto/.svn/
 www/external/web/.svn/
+www/external/dto/*/.svn/
+www/external/web/*/.svn/

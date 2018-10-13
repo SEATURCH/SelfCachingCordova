@@ -5,7 +5,11 @@
   "dependencies": {
     "cordova-android": "^6.2.1",
     "cordova-ios": "4.2.0",
+    "cordova-plugin-buildinfo": "^2.0.2",
+    "cordova-plugin-compat": "^1.2.0",
+    "cordova-plugin-file": "^4.3.3",
     "cordova-plugin-whitelist": "1.2.2",
+    "cordova-sqlite-storage": "git+https://github.com/litehelpers/Cordova-sqlite-storage.git",
     "cordova-windows": "4.4.2"
   },
   "devDependencies": {
@@ -16,6 +20,7 @@
     "file-loader": "^2.0.0",
     "html-loader": "^0.5.5",
     "jquery": "^3.3.1",
+    "jsonpath": "^1.0.0",
     "knockout": "^3.4.2",
     "knockout-mapping": "^2.6.0",
     "moment": "^2.22.2",
@@ -40,7 +45,10 @@
       "android"
     ],
     "plugins": {
-      "cordova-plugin-whitelist": {}
+      "cordova-plugin-whitelist": {},
+      "cordova-sqlite-storage": {},
+      "cordova-plugin-buildinfo": {},
+      "cordova-plugin-file": {}
     }
   },
   "-vs-binding": {

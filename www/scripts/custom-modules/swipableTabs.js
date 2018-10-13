@@ -5,9 +5,9 @@ ko.bindingHandlers.swipableTabs = {
       var data = valueAccessor();
       var swipeTemplate = allBindings().templateId;
       $(element).addClass("swipe");
-      $(element).attr("id", swipeTemplate);
-      var template = "#" + swipeTemplate;
-      $(element).append($('script' + template).html());
+      // $(element).attr("id", swipeTemplate);
+      // var template = "#" + swipeTemplate;
+      $(element).append($("#" + swipeTemplate).html());
       var lastItem = data.length? data[data.length - 1]: null;
       
       var childBindingContext = bindingContext.createChildContext({

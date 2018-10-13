@@ -1,0 +1,11 @@
+﻿$warning-color: #dc3545;
+
+ input, select  {
+     &.validatable {
+        border-color: $warning-color;
+        color: $warning-color;
+    }
+}
+.validatable.msg {
+    color: $warning-color;
+}

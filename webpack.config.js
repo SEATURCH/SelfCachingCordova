@@ -16,6 +16,9 @@ module.exports =
     };
 
 var config = {
+    node: {
+      fs: 'empty'
+    },
     entry: [
         './www/scripts/helper/reqs.js',
         './www/scripts/index.js'
@@ -56,7 +59,7 @@ var config = {
     plugins: [
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: JSON.stringify("DDDnpm"),
+                VERBOSE: false,
             },
         }),
     ]

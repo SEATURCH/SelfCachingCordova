@@ -1,13 +1,16 @@
 // Assume only need 1 file of each, concat all incoming of type;
 var req = require('../requests.js');
 var authentication = require('./authentication.js');
+var net = require('./network.js');
 
 var templateFileName = "app";
 var itemExtMimes = {
-    html: "text/html",
-    js: "application/javascript",
-    css: "text/css",
-    json: "application/json"
+    html: {ext: "html", mime: "text/html"},
+    scripts: {ext: "js", mime: "application/javascript"},
+    css: {ext: "css", mime: "text/css"},
+    config: {ext: "json", mime: "application/json"},
+    pages: {ext: "json", mime: "application/json"},
+    enumLookups: {ext: "json", mime: "application/json"}
 };
 var versionFile = "version.txt";
 var dataFileName = "data.json";
@@ -20,7 +23,7 @@ var writeFile = function (fs, fileName, contentBlob) {
                     res("Successful write");
                 };
                 fileWriter.onerror = function (e) {
-                    console.log("Failed file write: " + e.toString());
+                    if(VERBOSE) console.log("Failed file write: " + e.toString());
                     rej(new Error(e));
                 };
                 fileWriter.write(contentBlob);
@@ -42,7 +45,7 @@ var readFile = function (fs, fileName) {
                 };
                 reader.readAsText(file);
             }, function(err){
-                console.log("Unable to read File");
+                if(VERBOSE) console.log("Unable to read File");
                 rej(new Error(err));
             });
         }, function(err){
@@ -53,7 +56,6 @@ var readFile = function (fs, fileName) {
 
 var FileSys = {};
 var resolveFSHandle = function(subdir){
-    var rootLocation = cordova.file.externalApplicationStorageDirectory; //(window.cordova.platformId == 'android') ? cordova.file.dataDirectory : cordova.file.documentsDirectory;
     var children = subdir? subdir.split('/') : [];
     var cacheLocation = rootLocation + subdir;
 
@@ -66,7 +68,7 @@ var resolveFSHandle = function(subdir){
                     childrenDir.shift();
                     res({dirEntry: dirEntry, childrenDir: childrenDir});
                 }, function(err){
-                    console.log("Unable to resolve Local File System: " + nextDir);
+                    if(VERBOSE) console.log("Unable to resolve Local File System: " + nextDir);
                     rej(new Error(err));
                 });
             }).then(function(fs){
@@ -80,7 +82,7 @@ var resolveFSHandle = function(subdir){
         window.resolveLocalFileSystemURL(rootLocation, function (root) {
             res(root);
         }, function(err){
-            console.log("Unable to root File System. Set as: " + rootLocation);
+            if(VERBOSE) console.log("Unable to root File System. Set as: " + rootLocation);
             rej(new Error(err));
         });
     }).then(function(rootfs){
@@ -97,7 +99,7 @@ var readVersion = function () {
     return resolveFSHandle().then(function (fs) {
         return readFile(fs, versionFile);
     }).catch(function (d) {
-        console.log("Cannot read applciation version");
+        if(VERBOSE) console.log("Cannot read applciation version");
         return "No Version";
     });
 }
@@ -106,7 +108,7 @@ var saveVersion = function (newVersion) {
         var dataObj = new Blob([newVersion.toString()], { type: "text/plain" });
         return writeFile(fs, versionFile, dataObj);
     }).catch(function (d) {
-        console.log("Cannot cache applciation version");
+        if(VERBOSE) console.log("Cannot cache applciation version");
         throw d;
     });
 }
@@ -115,13 +117,13 @@ var clearCache = function () {
     return resolveFSHandle().then(function (fs) {
         var promiseCache = [];
         Object.keys(itemExtMimes).forEach(function (key) {
-            var fileName = templateFileName + '.' + key;
-            var dataObj = new Blob([''], { type: itemExtMimes[key] });
+            var fileName =  key + '.' + itemExtMimes[key].ext;
+            var dataObj = new Blob([''], { type: itemExtMimes[key].mime });
             promiseCache.push(writeFile(fs, fileName, dataObj));
         });
         return Promise.all(promiseCache).then(function(values){ return values; });
     }).catch(function (d) {
-        console.log("Cannot read applciation version");
+        if(VERBOSE) console.log("Cannot read applciation version");
         throw d;
     });
 }
@@ -130,13 +132,13 @@ var clearCache = function () {
 var saveTemplates = function (retrieved) {
     return resolveFSHandle().then(function (fs) {
         var savePromises = Object.keys(retrieved).map(function(key){
-            var fileName = templateFileName + '.' + key;
-            var dataObj = new Blob([JSON.stringify(retrieved[key])], { type: itemExtMimes[key] });
+            var fileName = key + '.' + itemExtMimes[key].ext;
+            var dataObj = new Blob([JSON.stringify(retrieved[key])], { type: itemExtMimes[key].mime });
             return writeFile(fs, fileName, dataObj);
         });
         return Promise.all(savePromises);
     }).catch(function (d) {
-        console.log("Cannot cache templates files");
+        if(VERBOSE) console.log("Cannot cache templates files");
         throw d;
     });
 }
@@ -145,7 +147,7 @@ var readTemplates = function () {
     return resolveFSHandle().then(function(fs) {
         var promiseCache = [];
         Object.keys(itemExtMimes).forEach(function (key) {
-            var fileName = templateFileName + '.' + key;
+            var fileName = key + '.' + itemExtMimes[key].ext;
             promiseCache.push(readFile(fs, fileName).then(function(res){
                 return {type: key, value: res};
             }));
@@ -157,30 +159,14 @@ var readTemplates = function () {
             }, {});
         });
     }).catch(function (d) {
-        console.log("Cannot read applciation from cache");
+        if(VERBOSE) console.log("Cannot read applciation from cache");
         throw d;
     });
 }
 
-function checkConnection() {
-    var networkState = navigator.connection.type;
-
-    var states = {};
-    states[Connection.UNKNOWN]  = 'Unknown connection';
-    states[Connection.ETHERNET] = 'Ethernet connection';
-    states[Connection.WIFI]     = 'WiFi connection';
-    states[Connection.CELL_2G]  = 'Cell 2G connection';
-    states[Connection.CELL_3G]  = 'Cell 3G connection';
-    states[Connection.CELL_4G]  = 'Cell 4G connection';
-    states[Connection.CELL]     = 'Cell generic connection';
-    states[Connection.NONE]     = 'No network connection';
-
-    if (Connection.NONE == networkState) return false;
-    return true;
-}
 
 var retrieveResources = function() {
-    if(checkConnection()){
+    if(net.checkConnection()) {
         return Promise.all([Math.random(), req.getVersion() ])
         // return Promise.all([readVersion(), req.getVersion() ])
         .catch(function(){
@@ -209,7 +195,7 @@ var readData = function() {
     }).then(function(res) {
         return JSON.parse(res || "[]");
     }).catch(function (d) {
-        console.log("Cannot read data.json from '" + subdir + "' from cache");
+        if(VERBOSE) console.log("Cannot read data.json from '" + subdir + "' from cache");
         throw d;
     });
 };
@@ -220,7 +206,7 @@ var saveData = function(data) {
         var dataObj = new Blob([JSON.stringify(data)], { type: "application/json" });
         return writeFile(fs, dataFileName, dataObj);
     }).catch(function (d) {
-        console.log("Cannot save data '" + fileName + "' into cache");
+        if(VERBOSE) console.log("Cannot save data '" + fileName + "' into cache");
         throw d;
     });
 };

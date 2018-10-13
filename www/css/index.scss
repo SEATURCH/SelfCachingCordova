@@ -5,7 +5,6 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    white-space: nowrap;
     position: absolute;
     transition: right 0.25s;
     right: -100%;
@@ -23,6 +22,7 @@
         vertical-align: top;
         transition: right 0.5s;
         right: 0;
+        overflow-y: scroll;
         .split {
             overflow:hidden;
             display: inline-block;

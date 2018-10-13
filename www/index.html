@@ -41,14 +41,7 @@
             </span>
           </div>
         </nav>
-        <div class="page">
-            <div class="split w-35" data-bind="foreach:[{prop: 1, DtoTypeName:'inspection-summary-template'}, {prop: 2, DtoTypeName:'inspection-summary-template'}]">
-                <div data-bind="text:function(){ console.log($data) }()"></div>
-                <div data-bind="dtoTemplate:$data"></div>
-                <!-- <div data-bind="dtoTemplate:{templateId: 'vehicle-summary-template', prop: 'pop1'}"></div> -->
-            </div>
-            <div class="split w-65 bg-info" data-bind="swipableTabs:[1,2,3,4], templateId:'image-swipe-template' ">
-            </div>
+        <div class="page"></div>
         </div>
     </div>
     <div class="app active">
@@ -58,19 +51,24 @@
           </a>
           <span class="navbar-brand" href="#">Opened Inspection</span>
         </nav>
+
         <!-- Form Loaded form -->
         <!-- ko if: $root.dataList().length -->
-        <div class="page bg-secondary"> 
-            <div data-bind="dtoTemplate:$root.dataList()[0] "></div>
+        <div  class="page">
+          <div data-bind="insertTemplate: $root.dataList()[0].PageId + 'Page', viewmodel:$root.dataList()[0]"></div>
+          <hr />
+          <!-- <div data-bind="insertTemplate: $root.dataList()[1].pageTempId, viewmodel:$root.dataList()[1]"></div> -->
         </div>
         <!-- /ko -->
 
     </div>
 
-    <script type="text/javascript" src="external/dto/network.js"></script>
-    <script type="text/javascript" src="external/dto/editable.js"></script>
-    <script type="text/javascript" src="external/dto/default-model-mapping.js"></script>
-    <script type="text/javascript" src="external/dto/dto-custom-bindings.js"></script>
+    <script type="text/javascript" src="external/dto/js/network.js"></script>
+    <script type="text/javascript" src="external/dto/js/editable.js"></script>
+    <script type="text/javascript" src="external/dto/js/default-model-mapping.js"></script>
+    <script type="text/javascript" src="external/dto/js/dto-custom-bindings.js"></script>
+    <script type="text/javascript" src="external/dto/js/helpers.js"></script>
+    <script type="text/javascript" src="external/dto/js/dtoFramework.js"></script>
     
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="bundle/bundle.js"></script>

@@ -37,11 +37,12 @@ var sessionScripts = function () {
 var defaultMap = function(){ console.log("Mapping not initilaized"); };
 var initMappings = function(config, lookups){
     var configMapping = parse(config, lookups);
-    defaultMap = function(data,dtoTypeName){
+    defaultMap = function (data, dtoTypeName) {
+        var mappingName = dtoTypeName || data.DtoTypeName;
         if (data)
-            return ko.mapping.fromJS(data, configMapping[data.DtoTypeName]);
+            return ko.mapping.fromJS(data, configMapping[mappingName]);
         else if(dtoTypeName)
-            return new DefaultEditableModel(configMapping[dtoTypeName]); 
+            return new DefaultEditableModel(configMapping[mappingName]); 
     }
 };
 
@@ -60,7 +61,7 @@ function DefaultEditableModel(mapping, parent, data) {
             DtoTypeName: mapping.DtoTypeName,
             CanEdit: true
         };
-        mapping.relevantDetails.concat(mapping.copyDetails).forEach(function (dets) { data[dets] = data[dets] || null; });
+        mapping.relevantDetails.map(function(d) {return d.Name}).concat(mapping.copyDetails).forEach(function (dets) { data[dets] = data[dets] || null; });
         mapping.nested.forEach(function (nested) { data[nested] = mapping[nested].isArray ? [] : null; })
     }
 
@@ -114,11 +115,11 @@ appendPrototype(DefaultEditableModel, {
         });
         self.revert();
     },
-    GetLookupValue: function (propName) {
+    GetLookupValue: function (propName, val) {
         var self = this;
         var modelConfig = self.info.config;
         
-        var keyValue = ko.unwrap(self[propName]);
+        var keyValue = val || ko.unwrap(self[propName]);
         var property = modelConfig.find(function (item) { return item.Name == propName;  });
 
         var lookup = self.info.lookups[property.Options];
@@ -137,17 +138,15 @@ appendPrototype(DefaultEditableModel, {
 
         // validate nested objects
         self.__ko_mapping__.nested.forEach(function (nest) {
-            var content = self[nest];
-            var nestedCount = 0;
+            var content = ko.unwrap(self[nest]);
             if (Array.isArray(content)) {
                 content.forEach(function (s) { counter += s.isValid(); });
 
-                content.isValid();
-                valid = valid && (content.length == 0 || content.filter(function (s) { return s.isValid(); }).length != 0);
+                //content.isValid();
+                //nestedErr = content.filter(function (s) { return s.isValid(); }).length;
             } else {
-                valid = valid && content.isValid();
+                counter += content.isValid();
             }
-            valid = valid && nestedCount == 0;
         });
         return counter;
     }
@@ -175,7 +174,7 @@ var parse = function (baseConfig, lookups) {
 
         config.forEach(function (prop) {
             var type = prop.Type;
-            if (prop.ValidationRules) {
+            if (prop.ValidationRules && !prop.IsReadOnly) {
                 var valRules = prop.ValidationRules.map(function (stringRules) {
                     if (stringRules.indexOf("rule") > -1 && stringRules.indexOf("condition") > -1)
                         return JSON.parse(stringRules);
@@ -194,7 +193,7 @@ var parse = function (baseConfig, lookups) {
             if (prop.IsReadOnly)
                 self.copyDetails.push(prop.Name);
             else if (!allTypes[type] || (allTypes[type] && prop.IsCollection))
-                self.relevantDetails.push(prop.Name);
+                self.relevantDetails.push(prop);
 
             // if(allTypes[prop.nestedType]){
             //     self[prop.property] = new mapping(allTypes[prop.nestedType], allOrientation[type]);
@@ -222,51 +221,6 @@ var parse = function (baseConfig, lookups) {
     return map;
 }
 
-//function mapModel(data, baseConfig, lookups) {
-//    var model = {};
-//    model.DtoTypeName = data.DtoTypeName;
-//    var properties = baseConfig[data.DtoTypeName];
-
-//    properties.forEach(function (prop) {
-//        var propValue = data[prop.Name];
-//        var dtoTypeName = getDtoName(propValue);
-//        if (baseConfig[dtoTypeName]) {
-//            if (Array.isArray(propValue)) {
-//                model[prop.Name] = $.map(propValue, function (item) {
-//                    return mapModel(item, baseConfig);
-//                });
-//            } else {
-//                model[prop.Name] = mapModel(propValue, baseConfig, lookups);
-//            }
-//        }
-//        else
-//            model[prop.Name] = ko.observable(propValue);
-//    });
-
-//    model.GetLookupValue = function (propName) {
-//        var config = baseConfig[model.DtoTypeName];
-//        var keyValue = ko.unwrap(model[propName]);
-//        var property
-//        config.forEach(function (item) {
-//            if (item.Name == propName) property = item;
-//        });
-//        var lookup = lookups[property.Options];
-//        var value;
-
-//        lookup.forEach(function (item) {
-//            if (item.Key == keyValue) value = item;
-//        });
-
-//        return value;
-//    }
-
-//    var modelScript = knockoutScripts[model.DtoTypeName];
-//    if ($.isFunction(modelScript)) {
-//        modelScript(model);
-//    }
-
-//    return model;
-//}
 
 function getDtoName(obj) {
     if (!obj) return null;
@@ -301,6 +255,13 @@ function ValidationModel(data, validation) {
             return "$[?(" + exp +")]";
         }
         var currentData = data.deepSave(true);
+        data.info.config.forEach(function (conf) {
+            if (conf.Options) {
+                var val = data.GetLookupValue(conf.Name, currentData[conf.Name]);
+                currentData[conf.Name] = (val || {}).Value || currentData[conf.Name];
+            }
+        })
+
         var condEval = jsonpath.query([currentData], queryString(rule.condition));
         if(condEval.length) {
             var ruleEval = jsonpath.query([currentData], queryString(rule.rule));

@@ -25,11 +25,14 @@ contextJS.keys().forEach(function (key) {
 })
 
 //// Binding templates
-var contextHTML = require.context("../../html", true, /^.*\.html$/im);
 var templates = [];
+var contextHTML = require.context("../../html", true, /^.*\.html$/im);
 contextHTML.keys().forEach(function (key) { templates.push(contextHTML(key)); });
 
-var contextHTML = require.context("../../external/dto/html", true, /^.*\.html$/im);
+contextHTML = require.context("../../html/app", true, /^.*\.html$/im);
+contextHTML.keys().forEach(function (key) { templates.push(contextHTML(key)); });
+
+contextHTML = require.context("../../external/dto/html", true, /^.*\.html$/im);
 contextHTML.keys().forEach(function (key) { templates.push(contextHTML(key)); });
 
 $('body').append(templates.join('\n'));

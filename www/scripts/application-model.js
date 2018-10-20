@@ -7,7 +7,8 @@ var db = require('./helper/lookupDB.js');
 
 function viewModel(initialData) {
     var self = this;
-    
+    self.authentication = authentication;
+
     self.dataList = ko.observableArray();
     self.previewItem = ko.observable(null);
     self.openedItem = ko.observable(null);

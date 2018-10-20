@@ -35,11 +35,12 @@ function networkCall() {
                     resolve(data);
                 },
                 error: function (errorData) {
-                	reject(new Error(errorData));
+                    reject(new Error(errorData));
                 }
             });
         });
     }
+
 
     self.postFile = function (url, data) {
         var promise = new Promise(function (resolve, reject) {
@@ -71,6 +72,57 @@ function networkCall() {
 
         return promise;
     }
+
+    self.parseFile = function (file, callback) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            fileContent = {
+                contents: e.target.result,
+                name: file.name,
+                type: file.type
+            };
+            callback(fileContent);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    self.fileUpload = function (url, file, callback) {
+        var xhr = new XMLHttpRequest();
+        if (xhr.upload) {
+            //&& file.type == "image/jpeg"
+            xhr.responseType = 'json';
+            // create progress bar
+            //var o = $id("progress");
+            //var progress = o.appendChild(document.createElement("p"));
+            //progress.appendChild(document.createTextNode("upload " + file.name));
+
+
+            // progress bar
+            //if (progressObservable) {
+            //    xhr.upload.addEventListener("progress", function (e) {
+            //        var pc = parseInt(100 - (e.loaded / e.total * 100));
+            //        console.log(pc);
+            //        progressObservable(pc);
+            //    }, false);
+            //}
+
+
+            // file received/failed
+            xhr.onreadystatechange = function (e) {
+                if (xhr.readyState == 4) {
+                    callback(xhr.response);
+                }
+            }
+        }
+
+        // start upload
+        var formData = new FormData();
+        formData.append("file", file);
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("X_FILENAME", file.name);
+        xhr.send(formData);
+    }
+
 
     self.getFilePost = function (url, params) {
         Inspections.startLoad();
@@ -124,7 +176,7 @@ function networkCall() {
             }
         };
 
-        
+
 
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         xhr.send($.param(params));

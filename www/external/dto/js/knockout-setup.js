@@ -21,7 +21,8 @@ $(function () {
 
 function setup(initialData) {
     vm = new masterViewModel(initialData);
-    var pageVm = pageViewModels[initialData.PageScriptName];
+    var key = Object.keys(pageViewModels).find(function (key) { return key.toLowerCase() == initialData.PageScriptName.toLowerCase(); });
+    var pageVm = pageViewModels[key];
     if ($.isFunction(pageVm)) pageVm(vm);
     ko.applyBindings(vm);
 
@@ -34,7 +35,10 @@ function masterViewModel(initialData) {
     self.lookups = initialData.Lookups;
    // self.pages = initialData.Pages;
     initMappings(initialData.Definitions,initialData.Lookups);
-    var mapped = defaultMap(initialData.Data);
-    self.data = ko.observable(mapped);
+    var mapped = ko.unwrap(defaultMap(initialData.Data, initialData.VMName));
+    if (mapped && mapped.constructor === Array)
+        self.data = ko.observableArray(mapped);
+    else
+        self.data = ko.observable(mapped);
 
 }

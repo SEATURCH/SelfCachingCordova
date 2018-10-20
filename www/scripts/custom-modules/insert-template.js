@@ -15,3 +15,15 @@ ko.bindingHandlers.insertTemplate = {
         	return { controlsDescendantBindings: false };
     }
 }
+
+ko.bindingHandlers.extendContext = {
+  init: function (element, valueAccessor, allBindings, viewModel, context) {    
+        var extended = {
+          _extended: valueAccessor()
+        };
+        
+        var innerBindingContext = context.extend(extended);
+        ko.applyBindingsToDescendants(innerBindingContext, element);
+        return { controlsDescendantBindings: true };
+    }
+}

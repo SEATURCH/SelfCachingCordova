@@ -1,21 +1,52 @@
 <script id="select-template" type="text/html">
-    <select class="form-control form-control-sm" data-bind="value: value, btnOptions: options, optionsText: optionsText, optionsValue: optionsValue, optionsCaption: optionsCaption,  event: { change: validate }, css: {validatable: $data.validationErrorMsg}">asdf</select> 
+    <select class="form-control form-control-sm" data-bind="value: value, btnOptions: options, optionsText: optionsText, optionsValue: optionsValue, optionsCaption: hint,  event: { change: validate }, css: {validatable: $data.validationErrorMsg}">asdf</select> 
     <div class="validatable msg" data-bind="text:$data.validationErrorMsg"></div>
 </script>
 
 <script id="dropdown-template" type="text/html">
-    <button class="btn btn-sm btn-light dropdown-toggle" data-bind="value: value, btnOptions: options, optionsText: optionsText, optionsValue: optionsValue, optionsCaption: optionsCaption"></button>
+    <button class="btn btn-sm btn-white dropdown-toggle" data-bind="value: value, btnOptions: options, optionsText: optionsText, optionsValue: optionsValue, optionsCaption: optionsCaption,event: {change: validate}, css: {validatable: $data.validationErrorMsg}"></button>
     <div class="validatable msg" data-bind="text:$data.validationErrorMsg"></div>
 </script>
 
+<script id="display-dropdown-template" type="text/html">
+    <span data-bind="text: function(){return (options.find(function(opt){ return ko.unwrap(value) == opt[optionsValue]}) || {})[optionsText]; }()"></span>
+    <!--<button class="btn btn-sm btn-light dropdown-toggle" data-bind="value: value, btnOptions: options, optionsText: optionsText, optionsValue: optionsValue, optionsCaption: optionsCaption,event: {change: validate}, css: {validatable: $data.validationErrorMsg}"></button>-->
+    <!--<div class="validatable msg" data-bind="text:$data.validationErrorMsg"></div>-->
+</script>
+
 <script id="text-template" type="text/html">
-    <input class="form-control form-control-sm" type="text" data-bind="textInput: value, css: {validatable: $data.validationErrorMsg}, event: { blur: validate, focus: dismiss }" />
+    <input class="form-control form-control-sm" type="text" data-bind="textInput: value, attr: {placeholder: hint}, css: {validatable: $data.validationErrorMsg}, event: { blur: validate, focus: dismiss }" />
     <div class="validatable msg" data-bind="text:$data.validationErrorMsg"></div>
+</script>
+
+
+<script id="display-text-template" type="text/html">
+    <span data-bind="text: value"></span> 
+    <!--<div class="validatable msg" data-bind="text:$data.validationErrorMsg"></div>-->
 </script>
 
 <script id="number-template" type="text/html">
     <input class="form-control form-control-sm" type="number" data-bind="textInput: value, css: {validatable: $data.validationErrorMsg}, event: { blur: validate, focus: dismiss }" />
     <div class="validatable msg" data-bind="text:$data.validationErrorMsg"></div>
+</script>
+
+<script id="display-number-template" type="text/html">
+    <span data-bind="text: value"></span>
+    <!--<div class="validatable msg" data-bind="text:$data.validationErrorMsg"></div>-->
+</script>
+
+<script id="boolean-template" type="text/html">
+    <input type="checkbox" class="form-check-input" data-bind="checked: value" />
+    <div class="validatable msg" data-bind="text:$data.validationErrorMsg"></div>
+</script>
+
+<script id="display-boolean-template" type="text/html">
+    <span data-bind="text:function(){ return ko.unwrap(value) ?'Yes' : 'No'; }()"></span>
+</script>
+
+
+<script id="display-date-template" type="text/html">
+    <span data-bind="text: ko.unwrap(value) ? new Date(ko.unwrap(value)).toISOString().slice(0, 10):''"></span>
 </script>
 
 <script id="dropdown-menu-template" type="text/html">
@@ -26,5 +57,12 @@
         <!-- ko foreach: options -->
         <div class="dropdown-item" data-bind="text: ko.utils.optionsText($data,$parent),click:function(){ ko.utils.setOptionsValue($data,$parent)}"></div>
         <!-- /ko -->
+    </div>
+</script>
+
+<script id="img-thumbnail-template" type="text/html">
+    <div class="dto-image-thumbnail">
+        <div class="img-loader" data-bind="visible: isLoading"></div>
+        <img data-bind="attr: {src: url },css: {hidden: !url()}">
     </div>
 </script>

@@ -11,9 +11,25 @@
     <title>Hello World</title>
 </head>
 <body>
-    <div class="app">
+    <div>
+      
+    </div>
+    <div class="app active" data-bind="extendContext: { showDrw: ko.observable(false) }">
+        <div class="drawer" data-bind="click: function(){ _extended.showDrw(false); }, css: {'show': _extended.showDrw}">
+          <div class="content w-25">
+            <div class="header h-25 bg-primary">
+              <div class="align-bottom">
+                <div>Powertech Logoo</div>
+                <div>Logged in as:</div>
+              </div>
+            </div>
+            <hr />
+            <div data-bind="insertTemplate: 'drawer-items'"></div>
+            
+          </div>
+        </div>
         <nav class="navbar navbar-expand-sm navbar-light bg-light">
-          <span class="navbar-brand" href="#">NDT Mobile</span>
+          <span class="navbar-brand" href="#" data-bind="click: function(){ _extended.showDrw(true); }">NDT Mobile</span>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -44,7 +60,7 @@
         <div class="page"></div>
         </div>
     </div>
-    <div class="app active">
+    <div class="app">
         <nav class="navbar navbar-expand-sm navbar-light bg-light">
           <a class="navbar-brand" href="#">
             Back

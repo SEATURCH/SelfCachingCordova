@@ -13,9 +13,9 @@ function pagesDataManager(structure, action) {
             if (endPointDef.Get) endPoint.Get = url;
             if (endPointDef.Post) endPoint.Post = url;
 
-            controller[endPointDef.Name] = endPoint;
+            controller[endPointDef.Name.toLowerCase()] = endPoint;
         });
-        self[controllerDef.Name] = controller;
+        self[controllerDef.Name.toLowerCase()] = controller;
     });
 
     if (action) {
@@ -28,9 +28,9 @@ function pagesDataManager(structure, action) {
 
     function dataManager(action) {
         var dmSelf = this;
-        var pageActions = self[action.Key][action.Value] || {};
+        var pageActions = self[action.Key.toLowerCase()][action.Value.toLowerCase()] || {};
         dmSelf.Action = action;
-        dmSelf.Controller = self[action.Key];
+        dmSelf.Controller = self[action.Key.toLowerCase()];
         dmSelf.Submit = pageActions.Post || "Page does not have defined submission URL";
         dmSelf.Get = pageActions.Get || "Page does not have defined retrieval URL";
     }

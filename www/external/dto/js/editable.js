@@ -7,11 +7,14 @@ function editable(properties, data) {
     self.createPropertyObservables = function (properties) {
         properties.forEach(function (property) {
             //if (!property.IsReadOnly) {
-                var name = property;
+                var name = property.Name;
                 var value = self.hasOwnProperty(name) ? self[name] : ko.observable();
+                var copyValue = createCopy(ko.unwrap(value));
+                self[name + editable.extension] = property.IsCollection? ko.observableArray(copyValue): ko.observable(copyValue);
 
-                self[name + editable.extension] = ko.observable(createCopy(ko.unwrap(value)));
-
+                if (self[name] == null) {
+                    var x = 1;
+                }
 
                 self[name].subscribe(function (newValue) {
                     self[name + editable.extension](createCopy(newValue));
@@ -37,7 +40,7 @@ function editable(properties, data) {
         
 
         properties.forEach(function (property) {
-            var name = property;
+            var name = property.Name;
             var propertyIndex = oldProperties.indexOf(name);
             if (propertyIndex == -1)
                 propertiesToAdd.push(property);
@@ -48,7 +51,7 @@ function editable(properties, data) {
         self.editableProperties(properties);
 
         oldProperties.forEach(function (prop) {
-            var name = prop;
+            var name = prop.Name;
             delete self[name + editable.extension];
         });
 
@@ -102,7 +105,7 @@ function editable(properties, data) {
     self.createSaveObject = function () {
         var jsObject = ko.mapping.toJS(self);
         ko.unwrap(self.editableProperties).forEach(function (property) {
-            name = property;
+            name = property.Name;
             if (DateValues.indexOf(name) >= 0)
                 jsObject[name] = ko.unwrap(self[name + editable.extension]) != null && ko.unwrap(self[name + editable.extension]) != undefined ? moment(ko.unwrap(self[name + editable.extension])).format('YYYY-MM-DDTHH:mm:ss.sss') : null;
             else

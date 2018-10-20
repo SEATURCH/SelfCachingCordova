@@ -13,6 +13,7 @@ var itemExtMimes = {
     enumLookups: {ext: "json", mime: "application/json"}
 };
 var versionFile = "version.txt";
+var authFile = "auth.txt";
 var dataFileName = "data.json";
 
 var writeFile = function (fs, fileName, contentBlob) {
@@ -188,31 +189,32 @@ var retrieveResources = function() {
     }
 }
 
-var readData = function() {
+var readFrom = function(pathName) {
     var subdir = authentication.currentUserId;
     return resolveFSHandle(subdir).then(function(fs) {
-        return readFile(fs, dataFileName);
+        return readFile(fs, pathName);
     }).then(function(res) {
         return JSON.parse(res || "[]");
     }).catch(function (d) {
-        if(VERBOSE) console.log("Cannot read data.json from '" + subdir + "' from cache");
+        if(VERBOSE) console.log("Cannot read " + pathName +" from '" + subdir + "' from cache");
         throw d;
     });
 };
 
-var saveData = function(data) {
+var saveTo = function(pathName, data) {
     var subdir = authentication.currentUserId;
     return resolveFSHandle(subdir).then(function (fs) {
         var dataObj = new Blob([JSON.stringify(data)], { type: "application/json" });
-        return writeFile(fs, dataFileName, dataObj);
+        return writeFile(fs, pathName, dataObj);
     }).catch(function (d) {
-        if(VERBOSE) console.log("Cannot save data '" + fileName + "' into cache");
+        if(VERBOSE) console.log("Cannot save data '" + pathName + "' into '" + subdir + "' in cache");
         throw d;
     });
 };
 
+
 module.exports = {
     retrieveResources: retrieveResources,
-    readData: readData,
-    saveData: saveData
+    readFrom: readFrom,
+    saveTo: saveTo
 }

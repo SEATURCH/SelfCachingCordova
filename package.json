@@ -49,8 +49,7 @@
       "cordova-sqlite-storage": {},
       "cordova-plugin-buildinfo": {},
       "cordova-plugin-file": {},
-      "cordova-plugin-network-information": {}
-      "cordova-plugin-file": {},
+      "cordova-plugin-network-information": {},
       "cordova-plugin-device": {}
     }
   },

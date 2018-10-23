@@ -14,7 +14,6 @@ var itemExtMimes = {
 };
 var versionFile = "version.txt";
 var authFile = "auth.txt";
-var dataFileName = "data.json";
 
 var writeFile = function (fs, fileName, contentBlob) {
     return new Promise(function (res, rej) {
@@ -189,8 +188,11 @@ var retrieveResources = function() {
     }
 }
 
-var readFrom = function(pathName) {
-    var subdir = authentication.currentUserId;
+
+// Data json handlers
+var readFrom = function(pname) {
+    var pathName = pname + '.json';
+    var subdir = authentication.currentUserId();
     return resolveFSHandle(subdir).then(function(fs) {
         return readFile(fs, pathName);
     }).then(function(res) {
@@ -201,8 +203,9 @@ var readFrom = function(pathName) {
     });
 };
 
-var saveTo = function(pathName, data) {
-    var subdir = authentication.currentUserId;
+var saveTo = function(pname, data) {
+    var pathName = pname + '.json';
+    var subdir = authentication.currentUserId();
     return resolveFSHandle(subdir).then(function (fs) {
         var dataObj = new Blob([JSON.stringify(data)], { type: "application/json" });
         return writeFile(fs, pathName, dataObj);

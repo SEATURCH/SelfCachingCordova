@@ -1,5 +1,3 @@
-
-
 // CommunicationsManager - window level definition used in by library /dto/dtoFramework.js
 // Required for all root level viewmodels
 var InitComMngr = function(vm) {
@@ -11,3 +9,4 @@ var InitComMngr = function(vm) {
         }
     }
 }
+

@@ -1,7 +1,7 @@
-var cache = require('./helper/cached.js');
-var db = require('./helper/lookupDB.js');
+var dm = require('./helper/dataManager.js');
 
-var appModel = require('./application-model.js');
+// var appModel = require('./application-model.js');
+var appModel = require('./helper/rootvm.js');
 window.viewmodel = new appModel.viewModel();
 window.VERBOSE = false;
 
@@ -17,17 +17,15 @@ var app = {
     },
     // Cleanup - save data to file and close db handle
     onDevicePause: function() {
-        var cleanup = [db.close(), viewmodel.saveDataToCache()];
-        return Promise.all(cleanup);
+        return dm.cleanUp();
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-        window.rootLocation =cordova.file.externalApplicationStorageDirectory; // (window.cordova.platformId == 'android') ? cordova.file.dataDirectory : cordova.file.documentsDirectory;
+        window.rootLocation = cordova.file.externalApplicationStorageDirectory; // (window.cordova.platformId == 'android') ? cordova.file.dataDirectory : cordova.file.documentsDirectory;
         window.powertech = new networkCall();
         initDtoTemplate();
 
-        Promise.all([cache.retrieveResources(), db.updateDB()]).then(function(result){
-            var rsrc = result[0];
+        dm.startUp().then(function(rsrc){
             $('body').append(rsrc.html);
             $('body').append('<style>' + (rsrc.css || '')  + '</style>');
 
@@ -42,11 +40,11 @@ var app = {
             viewmodel.definitions = rsrc.config;
             viewmodel.lookups = rsrc.enumLookups;
             
-            window.communicationManager = appModel.InitComMngr(viewmodel);
             ko.applyBindings(viewmodel);
 
-            // Physically pick Inspections/Create
-            return viewmodel.selectedController("Inspections");
+            // Physically pick default page
+            return Promise.resolve($('#starterPage')[0].click());
+            // return viewmodel.selectedController("Inspections");
         }).catch(function(err) {
             if(VERBOSE) console.log(err);
             console.log("Error in initialization. Please make sure the app is loaded at least once with internet access");

@@ -5,6 +5,7 @@ var uuidv4 = require('uuid/v4');
 
 var curId = null;
 var currentUserId = function(){
+	return "S";
 	if(curId != null) return Promise.resolve(curId);
 	return cached.readAuth().then(function(res){
 		curId = res;

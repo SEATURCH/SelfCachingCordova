@@ -1,9 +1,9 @@
 var req = require('../requests.js');
-var cache = require('./cached.js');
 var authentication = require('./authentication.js');
 var uuidv4 = require('uuid/v4');
-var db = require('./lookupDB.js');
-
+var dm = require('./dataManager.js');
+var navi = require('./navigation.js');
+var pageInits = require('../app/initializers.js');
 
 function viewModel(initialData) {
     var self = this;
@@ -14,9 +14,30 @@ function viewModel(initialData) {
     self.pageConfig = null;
     self.pageFramework = null;
 
-    self.selectedController = ko.observable();
-    self.selectedController.subscribe(function(value) {
-        self.initPage(value);
+    self.pageData = ko.observable(null);
+    self.currentPage = ko.observable(null);
+    navi.init(function(pathname, params){
+        var parts = pathname.split('/').filter(function(part) { return part; });
+        self.currentPage({
+            Key: parts[0],
+            Value: parts[1] || "Index"
+        });
+        window.communicationManager = {
+            submitData: function(url, data) {
+                this.data.deepComplete();
+                dm.write(this.dto, )
+            }
+        }
+        return self.initPage(self.currentPage()).then(function() {
+            return pageInits.initPage(pathname, params)
+        }).then(function(initialData) {
+            var currentPage = controller.PageDefinitions.find(function(pg){ return pg.Name == page.Value; });
+            if(currentPage) {
+                var sample = new ApplicationDataModel(initialData, self.pageFramework.getDataManager(page), currentPage);
+                self.pageData(sample);
+            } else throw new Error("Page Definition not found")
+        })
+        
     });
 }
 
@@ -33,23 +54,30 @@ appendPrototype(viewModel, {
         var self = this;
         return req.getFrom(endpnt);
     },
-    getDataFromCache: function (pathName) {
+    initPage: function(page) {
         var self = this;
-        return cache.readFrom(pathName);
-    },
-    saveDataToCache: function(data){
-        var self = this;
-        return cache.saveto(d);
+        var controller = self.pageConfig.find(function(pg){ return pg.Name == page.Key; });
+         if(controller) {
+            return dm.initializePage(controller.PageDefinitions).then(function(dynmLkps) {
+                $.extend(self.lookups, dynmLkps);
+                initMappings(self.definitions, self.lookups);
+            }).catch(function(s){
+                if(VERBOSE) console.log(s);
+                if(VERBOSE) console.log("Error in starting page - configurations missing or out of date. Please resrtart app with internet to re-initialize");
+            });
+        }
     }
 });
 
 
-function ApplicationDataModel(data, dataManager, AppUUID) {
+function ApplicationDataModel(dataModel, dataManager, pageDef) {
     var self = this;
-    self.AppUUID = AppUUID || uuidv4();
     self.framework = dataManager;
     self.PageId = dataManager.Action.Key + dataManager.Action.Value;
-    self.data = defaultMap(data);
+    
+    $.extend(self, dataModel)
+    self.AppUUID = self.AppUUID || uuidv4();
+    self.data = defaultMap(self.data, pageDef.RootModel);
         
     sessionScripts.run("pageViewModels", self.PageId, self);
 }

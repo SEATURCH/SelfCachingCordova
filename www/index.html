@@ -69,16 +69,17 @@
         </nav>
 
         <!-- Form Loaded form -->
-        <!-- ko if: $root.dataList().length -->
+        <!-- ko if: $root.pageData -->
         <div  class="page">
-          <div data-bind="insertTemplate: $root.dataList()[0].PageId + 'Page', viewmodel:$root.dataList()[0]"></div>
-          <hr />
-          <!-- <div data-bind="insertTemplate: $root.dataList()[1].pageTempId, viewmodel:$root.dataList()[1]"></div> -->
+          <!-- <div data-bind="insertTemplate: $root.pageData().PageId + 'Page', viewmodel:$root.pageData()"></div> -->
+          
         </div>
         <!-- /ko -->
 
     </div>
-
+    <!-- App Initial Page -->
+    <a id="starterPage" href="/Inspections/Index"></a>
+    
     <script type="text/javascript" src="external/dto/js/network.js"></script>
     <script type="text/javascript" src="external/dto/js/editable.js"></script>
     <script type="text/javascript" src="external/dto/js/default-model-mapping.js"></script>
@@ -88,6 +89,5 @@
     
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="bundle/bundle.js"></script>
-    
 </body>
 </html>

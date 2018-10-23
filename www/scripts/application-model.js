@@ -114,12 +114,7 @@ appendPrototype(viewModel, {
         var self = this;
         var controller = self.pageConfig.find(function(pg){ return pg.Name == container; });
         if(controller) {
-            var dynmEnums = controller.PageDefinitions.reduce(function(collect, current) {
-                var newLkp = current.LookupProperties.filter(function(d){ return !self.lookups.hasOwnProperty(d) && collect.indexOf(d) == -1; });
-                return collect.concat(newLkp);
-            }, []);
-            // Tries to retreive non-overlapping dynamic lookups for this selected 'controller'
-            return db.getEnums(dynmEnums).then(function(dynmLkps) {
+            return dataManager.getAllEnums(controller.PageDefinitions).then(function(dynmLkps) {
                 $.extend(self.lookups, dynmLkps);
                 initMappings(self.definitions, self.lookups);
                 return self.getDataFromCache();

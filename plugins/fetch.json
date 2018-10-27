@@ -10,7 +10,7 @@
   "cordova-plugin-network-information": {
     "source": {
       "type": "registry",
-      "id": "cordova-plugin-network-information"
+      "id": "cordova-plugin-camera@2.4.1"
     },
     "is_top_level": true,
     "variables": {}
@@ -51,6 +51,22 @@
     "source": {
       "type": "registry",
       "id": "cordova-plugin-device"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-camera": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-camera@^2.4.1"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-datetimepicker": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-datetimepicker"
     },
     "is_top_level": true,
     "variables": {}

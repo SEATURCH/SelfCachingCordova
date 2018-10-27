@@ -258,6 +258,9 @@
 
 
     ko.bindingHandlers.modal = {
+        init: function (element, valueAccessor, allBindings, data, context) {
+            if ($("#webModal").length == 0) $('body').append($('#modal-body').html());
+        },
 	    update: function (element, valueAccessor, allBindings, data, context) {
 	        var template = valueAccessor();
 	        var viewmodel = allBindings().modalVm;

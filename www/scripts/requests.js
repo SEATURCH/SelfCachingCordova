@@ -17,10 +17,6 @@ var getVersion = function () {
     return netCheck().then(function(){ return powertech.post(domain + "/Template/Version", {}); });
 };
 
-var sampleData = function () {
-    return netCheck().then(function(){ return powertech.post(domain + "/Template/Sample", {}); });
-};
-
 var dynamicLookups = function(param) {
     return netCheck().then(function(){ return powertech.post(domain + "/Template/Lookups", param ); });
 }
@@ -28,6 +24,11 @@ var dynamicLookups = function(param) {
 var deviceAuthenticate = function(param) {
     return netCheck().then(function(){ return powertech.post(domain + "/Template/Lookups", param ); });
 }
+
+// data= {files: [File, File, ..] }
+var postFiles = function (data) {
+    return netCheck().then(function(){ return powertech.postFile(domain + "/Files/UploadFiles", data ); });
+};
 
 var postTo = function (url, data) {
     return netCheck().then(function(){ return powertech.post(domain + url, data); });
@@ -41,7 +42,6 @@ module.exports = {
 	getTemplates: getTemplates,
 	getVersion: getVersion,
 	dynamicLookups: dynamicLookups,
-	sample: sampleData,
 	getFrom: getFrom,
 	postTo: postTo
 }

@@ -4,25 +4,26 @@
 // Retrieves and stores statics in cache and coordinates with lookups cache
 // NOTE: not the same dataManager used to coordinate page adn endpoint definitions
 
+var uuidv4 = require('uuid/v4');
 var db = require('./lookupDB.js');
 var cached = require('./cached.js');
 var staticCache = {};
 
-function DataModel(AppUUID, dto, data) {
+// data should be json dto's
+function DataModel(AppUUID, data) {
 	var self = this;
-	self.dto = dto;
-    self.AppUUID = AppUUID || uuidv4();
-    self.data = data;
+    self.AppUUID = AppUUID || uuidv4();    
+	$.extend(self, data);
 }
 
 var get = function(table) {
 	if (allEnums.indexOf(table) >= 0) {
-		db.getEnums(table);
+		return db.getEnums(table);
 	} else {
 		if (staticCache.hasOwnProperty(table)) {
 			return Promise.resolve(staticCache[table]);
 		} else {
-			return cached.readFrom(table).then(function(data){
+			return cached.readFrom(table + '.json').then(function(data){
 				staticCache[table] = data;
 				return data;
 			});
@@ -30,16 +31,18 @@ var get = function(table) {
 	}
 }
 
-var write = function(table, AppUUID, data) {
+var write = function(table, data, AppUUID) {
 	if (allEnums.indexOf(table) >= 0) {
 		var upsert = {};
 		upsert[table] = [data];
 		db.upsertEntries(upsert);
 	} else {
-		var currentSet = get(table);
-		var existingIndex = currentSet.findIndex(function(cur) { return cur.AppUUID == AppUUID; });
-		if (existingIndex != -1) currentSet.splice(existing, 1, data);
-		else currentSet.push(data);
+		var newEntry = new DataModel(AppUUID, data);
+		return get(table).then(function(currentSet){
+			var existingIndex = currentSet.findIndex(function(cur) { return cur.AppUUID == AppUUID; });
+			if (existingIndex != -1) currentSet.splice(existing, 1, newEntry);
+			else currentSet.push(newEntry);
+		});
 	}
 }
 
@@ -70,14 +73,16 @@ var startUp = function(){
 
 // Only save the staticCache items since on write of db items, it is already an upsert. 
 var cleanUp = function(saveOnly) {
-	if(!saveOnly) var promiseAll = [db.close()];
+	var promiseAll = [];
+	if(!saveOnly) promiseAll.push(db.close());
 	Object.keys(staticCache).forEach(function(table){
-		promiseAll.push(cached.saveTo(table, staticCache[table]));
+		promiseAll.push(cached.saveTo(staticCache[table], table + '.json'));
 	});
 	return Promise.all(promiseAll);
 }
 
 module.exports = {
+	DataModel: DataModel,
 	get: get,
 	write: write,
 	initializePage: initializePage,

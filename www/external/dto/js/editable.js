@@ -70,12 +70,12 @@ function editable(properties, data) {
 
     self.revert = function () {
         [].concat(self.changes()).forEach(function (name) {
-            if (name == "Images")
-                self[name](ko.unwrap(self[name]).filter(function (im) { return ko.unwrap(im.Inspection_Id); }));
-            else { 
+            // if (name == "Images")
+            //     self[name](ko.unwrap(self[name]).filter(function (im) { return ko.unwrap(im.Inspection_Id); }));
+            // else { 
                 var revertValue = ko.unwrap(self[name]);
                 self[name + editable.extension](createCopy(revertValue));
-            }
+            // }
         });
         self.changes([]);
     }
@@ -93,10 +93,10 @@ function editable(properties, data) {
 
     self.completeSave = function () {
         self.changes().forEach(function (name) {
-            if (name != "Images") { 
+            // if (name != "Images") { 
                 var saveValue = createCopy(ko.unwrap(self[name + editable.extension]));
                 self[name](saveValue);
-            }
+            // }
         });
         self.changes([]);
     };

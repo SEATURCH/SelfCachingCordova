@@ -43,9 +43,8 @@ function networkCall() {
 
 
     self.postFile = function (url, data) {
-        var promise = new Promise(function (resolve, reject) {
-            Inspections.startLoad();
-            var securityToken = document.getElementById("RequestValidationToken") ? document.getElementById("RequestValidationToken").value : null;
+        return new Promise(function (resolve, reject) {
+            // var securityToken = document.getElementById("RequestValidationToken") ? document.getElementById("RequestValidationToken").value : null;
             $.ajax({
                 type: "POST",
                 url: url,
@@ -54,23 +53,18 @@ function networkCall() {
                 contentType: false,
                 processData: false,
                 headers: {
-                    'X-request-validation-token': securityToken,
+                    // 'X-request-validation-token': securityToken,
                     'X-Requested-With': 'XMLHttpRequest'
                 },
+                timeout: this.defaultTimeout,
                 success: function (data) {
-                    Inspections.endLoad();
                     resolve(data);
                 },
                 error: function (errorData) {
-                    Inspections.endLoad();
-                    self.failedLoginIsFile = true;
-                    self.handleAjaxError(errorData, url, data, promise, resolve, reject);
-                },
-                timeout: this.defaultTimeout
+                    reject(new Error(errorData));
+                }
             });
         });
-
-        return promise;
     }
 
     self.parseFile = function (file, callback) {

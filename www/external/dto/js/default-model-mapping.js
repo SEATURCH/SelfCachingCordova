@@ -106,7 +106,7 @@ appendPrototype(DefaultEditableModel, {
     deepRevert: function () {
         var self = this;
         self.__ko_mapping__.nested.forEach(function (nest) {
-            var content = ko.unwrap(self[nest]);
+            var content = ko.unwrap(self[nest + editable.extension]);
             if (Array.isArray(content)) {
                 content.forEach(function (s) { return s.deepRevert(); });
             } else if (content) {
@@ -114,6 +114,20 @@ appendPrototype(DefaultEditableModel, {
             }
         });
         self.revert();
+    },
+    getImages: function () {
+        var self = this;
+        var imageDtos = ['ComponentInspectionImage'];
+        var imgs = imageDtos.indexOf(ko.unwrap(self.DtoTypeName)) >= 0? [self] : [];
+        self.__ko_mapping__.nested.forEach(function (nest) {
+            var content = ko.unwrap(self[nest + editable.extension]);
+            if (Array.isArray(content)) {
+                imgs = imgs.concat(content.reduce(function(col, cur){ return col.concat(cur.GetImages()) }, []));
+            } else if (content) {
+                imgs = imgs.concat(content.GetImages());
+            }
+        });
+        return imgs;
     },
     GetLookupValue: function (propName, val) {
         var self = this;

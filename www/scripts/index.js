@@ -1,4 +1,5 @@
 var dm = require('./helper/dataManager.js');
+var pm = require('./helper/pictureManager.js');
 
 // var appModel = require('./application-model.js');
 var appModel = require('./helper/rootvm.js');
@@ -17,7 +18,7 @@ var app = {
     },
     // Cleanup - save data to file and close db handle
     onDevicePause: function() {
-        return dm.cleanUp();
+        return Promise.all([dm.cleanUp(), pm.cleanUp]);
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {

@@ -8,78 +8,53 @@
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
     <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
     <title>Hello World</title>
 </head>
 <body>
-    <div>
-      
-    </div>
     <div class="app active" data-bind="extendContext: { showDrw: ko.observable(false) }">
-        <div class="drawer" data-bind="click: function(){ _extended.showDrw(false); }, css: {'show': _extended.showDrw}">
-          <div class="content w-25">
-            <div class="header h-25 bg-primary">
-              <div class="align-bottom">
-                <div>Powertech Logoo</div>
-                <div>Logged in as:</div>
-              </div>
+      <div class="drawer" data-bind="click: function(){ _extended.showDrw(false); }, css: {'show': _extended.showDrw}">
+        <div class="content bg-white h-100 d-flex flex-column justify-content-between">
+          <div class="h-100">
+            <div class="header bg-primary text-light px-2">
+                <h1 class="p-2">NDT Vehicle Inspections</h1>
+                <div class="p-2 text-right">Some Inspector</div>
             </div>
-            <hr />
-            <div data-bind="insertTemplate: 'drawer-items'"></div>
-            
+            <div>
+              <h5><i class="fas fa-cloud-upload-alt p-3"></i>Upload</h5>
+              <h5><i class="fas fa-arrow-circle-down p-3"></i>Download</h5>
+            </div>
+            <hr class="mx-2" />
+            <div class="px-2" data-bind="insertTemplate: 'drawer-items'"></div>
+          </div>
+          <div>
+            <h5><i class="fas fa-door-open p-3"></i>Log Out</h5>
           </div>
         </div>
-        <nav class="navbar navbar-expand-sm navbar-light bg-light">
-          <span class="navbar-brand" href="#" data-bind="click: function(){ _extended.showDrw(true); }">NDT Mobile</span>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="#">Up</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Down</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">New</a>
-              </li>
-            </ul>
-            <span class="navbar-text">
-                <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">User Name</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Filter/Sort</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Log out</a>
-                    </div>
-                </div>
-            </span>
-          </div>
-        </nav>
-        <div class="page"></div>
+      </div>
+      <div class="w-100 h-100" data-bind="css: {'blur': _extended.showDrw}">
+        <!-- ko with: {images: ko.observableArray() } -->
+        <div data-bind="pictureControl: images"></div>
+        <div data-bind="foreach: images">
+          <img data-bind="pictureURL:$data" width="50" height="50">
         </div>
-    </div>
-    <div class="app">
-        <nav class="navbar navbar-expand-sm navbar-light bg-light">
-          <a class="navbar-brand" href="#">
-            Back
-          </a>
-          <span class="navbar-brand" href="#">Opened Inspection</span>
-        </nav>
 
-        <!-- Form Loaded form -->
-        <!-- ko if: $root.pageData -->
-        <div  class="page">
-          <!-- <div data-bind="insertTemplate: $root.pageData().PageId + 'Page', viewmodel:$root.pageData()"></div> -->
-          
-        </div>
         <!-- /ko -->
-
+        
+        <nav class="navbar navbar-expand-sm navbar-light bg-light">
+          <span class="navbar-toggler-icon m-2 btn" data-bind="click: function(){ _extended.showDrw(true); }"></span>
+          <span class="navbar-brand" href="#">NDT Mobile</span>
+        </nav>
+        <!-- ko if: $root.pageData -->
+          <div  class="page" data-bind="with:$root.pageData">
+            <div data-bind="insertTemplate: $data.PageId + 'Page'"></div>
+          </div>
+        <!-- /ko -->
+      </div>
     </div>
     <!-- App Initial Page -->
     <a id="starterPage" href="/Inspections/Index"></a>
-    
+
     <script type="text/javascript" src="external/dto/js/network.js"></script>
     <script type="text/javascript" src="external/dto/js/editable.js"></script>
     <script type="text/javascript" src="external/dto/js/default-model-mapping.js"></script>

@@ -177,7 +177,10 @@ var removeEntries = function (data){
 var close = function(){
 	if(db){
 		return new Promise(function(res, rej) {
-			db.close(res, rej);
+			db.close(function(s){
+				db = null;
+				res(s)
+			}, rej);
 		});	
 	}
 }
@@ -193,6 +196,7 @@ var getEnums = function(data) {
 	var params = [];
 	var existing = {};
 	var search = [];
+	data = (Array.isArray(data)) ? data : [data];
 	data.forEach(function(d) {
 		if(cachedLkps.hasOwnProperty(d)) existing[d] = cachedLkps[d];
 		else search.push(d);

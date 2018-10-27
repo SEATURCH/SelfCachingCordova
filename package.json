@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "cordova-android": "^6.2.1",
     "cordova-ios": "4.2.0",
     "cordova-plugin-buildinfo": "^2.0.2",
+    "cordova-plugin-camera": "^2.4.1",
     "cordova-plugin-compat": "^1.2.0",
+    "cordova-plugin-datetimepicker": "^1.1.2",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-file": "^4.3.3",
     "cordova-plugin-network-information": "^2.0.1",
@@ -42,7 +45,8 @@
   "cordova": {
     "platforms": [
       "ios",
-      "windows"
+      "windows",
+      "android"
     ],
     "plugins": {
       "cordova-plugin-whitelist": {},
@@ -50,7 +54,9 @@
       "cordova-plugin-buildinfo": {},
       "cordova-plugin-file": {},
       "cordova-plugin-network-information": {},
-      "cordova-plugin-device": {}
+      "cordova-plugin-device": {},
+      "cordova-plugin-camera": {},
+      "cordova-plugin-datetimepicker": {}
     }
   },
   "-vs-binding": {

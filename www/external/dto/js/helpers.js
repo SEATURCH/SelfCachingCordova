@@ -56,6 +56,11 @@
                 return 1
             return 0;
         });
+    },
+    linkNavigation: function (url) {
+        var parser = $('#linkNav').length ? $('#linkNav')[0] : $('<a id="linkNav" class="d-none"></a>').appendTo('body')[0];
+        parser.href = url;
+        parser.click();
     }
 
 };

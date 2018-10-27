@@ -1,0 +1,63 @@
+{
+  "_from": "cordova-plugin-datetimepicker",
+  "_id": "cordova-plugin-datetimepicker@1.1.2",
+  "_inBundle": false,
+  "_integrity": "sha512-qIN6/dNyI1/KprvF+lOHN2oqbjnqMQZugsOm63KNuLQxBAhiXyf/+eaeyw6wA1O8NbHw1nhmb1XOAYQaQahK1g==",
+  "_location": "/cordova-plugin-datetimepicker",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "cordova-plugin-datetimepicker",
+    "name": "cordova-plugin-datetimepicker",
+    "escapedName": "cordova-plugin-datetimepicker",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-datetimepicker/-/cordova-plugin-datetimepicker-1.1.2.tgz",
+  "_shasum": "23e4e5a9be97b06b8eeb12e9aa806a901185f955",
+  "_spec": "cordova-plugin-datetimepicker",
+  "_where": "C:\\Users\\alachang\\Desktop\\NDTInspections\\Mobile\\NDTMobile",
+  "author": {
+    "name": "Alexander Ploner",
+    "email": "alex@neatnet.de"
+  },
+  "bugs": {
+    "url": "https://github.com/alex-pl/cordova-plugin-datetimepicker/issues"
+  },
+  "bundleDependencies": false,
+  "cordova": {
+    "id": "cordova-plugin-datetimepicker",
+    "platforms": [
+      "android"
+    ]
+  },
+  "deprecated": false,
+  "description": "Native date and time picker for Android.",
+  "homepage": "https://github.com/alex-pl/cordova-plugin-datetimepicker#readme",
+  "keywords": [
+    "cordova",
+    "datetime",
+    "date",
+    "time",
+    "picker",
+    "ecosystem:cordova",
+    "cordova-android",
+    "android"
+  ],
+  "license": "MIT",
+  "name": "cordova-plugin-datetimepicker",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-pl/cordova-plugin-datetimepicker.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.1.2"
+}

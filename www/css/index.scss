@@ -1,4 +1,5 @@
 @import "_Settings.scss";
+@import '../../node_modules/@fortawesome/fontawesome-free/css/all.css';
 
 .app {
     color: $base-text-color;
@@ -10,9 +11,22 @@
         height:$nabar-height;
     }
     
-    .blur {
-        filter: blur(1.5rem);
+    .loading {
+        .rot {
+            display:initial !important;
+            font-size: 2.25rem;
+            width: 2.25rem;
+            animation-name: rotate; 
+            animation-duration: 1s; 
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+        @keyframes rotate {
+            from {transform: rotate(0deg);}
+            to {transform: rotate(360deg);}
+        }
     }
+    
     .drawer {
         height: 100%;
         width:100%;
@@ -35,128 +49,114 @@
         }
     }
 
-    .page {
-        width: 100%;
-        height: calc(100% - #{$nabar-height});
+    .pages-holder {
         position: relative;
-        display: inline-block;
-        vertical-align: top;
-        transition: right 0.5s;
-        right: 0;
-        overflow-y: scroll;
-        .split {
-            overflow:hidden;
-            display: inline-block;
-            width:50%;
-            height:100%;
-            &.w-35 {
-                width: 35%;
-            }
-            &.w-65 {
-                width: 65%;
-            }
+        height: calc(100% - #{$nabar-height});
+        width: 100%;
+        .page {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            overflow-y: scroll;
         }
     }
 }
 
-.swipe {
-    visibility: hidden;
-    position: relative;
-    height: 100%;
-    .swipe-wrap {
-        height: 100%;
-        position: relative;
-    }
-    .swipe-wrap > div {
-        float: left;
-        width: 100%;
-        height: 100%;
-        position: relative;
-        display: flex;
-        align-items: flex-start;
-        flex-direction: column;
-    }
-    .swipe-header {
-        width:100%;
-        box-shadow: 0px 0.1em 1em #dddddd;
-        display:flex;
-    }
-}
+// .swipe {
+//     visibility: hidden;
+//     position: relative;
+//     height: 100%;
+//     .swipe-wrap {
+//         height: 100%;
+//         position: relative;
+//     }
+//     .swipe-wrap > div {
+//         float: left;
+//         width: 100%;
+//         height: 100%;
+//         position: relative;
+//         display: flex;
+//         align-items: flex-start;
+//         flex-direction: column;
+//     }
+//     .swipe-header {
+//         width:100%;
+//         box-shadow: 0px 0.1em 1em #dddddd;
+//         display:flex;
+//     }
+// }
 
 
 .navigation-transitions {
-    .newRoot {
-        .main {
-            animation: blink;
-            animation-duration: 1.0s;
-            animation-timing-function: ease;
+    .main {
+        background-color:white;
+        box-shadow: 0px 0.25em 0.15rem;
+    }
+    .helper {
+        opacity: 0;
+        z-index: -1;
+    }
+    &.animate {
+        .helper{
+            opacity:1;
+            z-index: 1000;
         }
     }
-    .addChild {
-        .main {
-            animation: scale;
-            animation-duration: 1.0s;
-            animation-timing-function: ease;
+    &.newRoot {
+        .helper {
+            z-index: 1000;
+            animation: blink;
+            animation-duration: 0.5s;
         }
+    }
+    &.addChild {
         .helper {
             animation: hori;
             animation-duration: 1.0s;
-            animation-timing-function: ease;
         }
     }
-    .replaceChild {
-        .main {
-            animation: scale;
-            animation-duration: 1.0s;
-            animation-timing-function: ease;
-        }
-        .helper {
+    &.replaceChild {
+       .helper {
             animation: veri;
             animation-duration: 1.0s;
-            animation-timing-function: ease;
         }
     }
-    .backspace {
+    &.backspace {
+        .helper {  z-index: -1; }
         .main {
-            animation: scale;
-            animation-duration: 1.0s;
-            animation-timing-function: ease;
-            animation-direction:reverse;
-        }
-        .helper {
             animation: hori;
-            animation-duration: 0.75s;
-            animation-timing-function: ease;
+            animation-duration: 1.0s;
+            // animation-timing-function: ease;
             animation-direction:reverse;
         }
     }
-    
+
     @keyframes blink {
         0%   {
             background-color: transparent;
             opacity:25%;
-            filter:blur(.5rem);
         }
         100%   {}
     }
 
-    @keyframes hori {
-        0%   {transform: initial; }
-        25%   {transform: scale(0.75, .75); filter:blur(.5rem) }
-        75%   {transform: translate(-100% ,0) scale(0.75, 0.75); filter:blur(.5rem) }
-        100%   {transform: translate(-100% ,0) scale(1, 1)}
-    }
 
     @keyframes scale {
         0%   {transform: initial; }
-        25%   {transform: scale(0.75, .75); filter:blur(.5rem) }
-        100%   {transform: scale(0.75, .75);}
+        25%   {transform: scale(0.9, 0.9);}
+        100%   {transform: scale(0.9, 0.9);}
+    }
+
+    @keyframes hori {
+        0%    {transform: translate(100%,0)  }
+        25%   {transform: translate(100%,0) }
+        75%   {transform: translate(0, 0)  }
+        100%  {transform: translate(0, 0)}
     }
 
     @keyframes veri {
-        0%   {transform: initial; }
-        25%   {transform: scale(0.75, .75); filter:blur(.5rem) }
-        75%   {transform: translate(0, -100%) scale(0.75, 0.75); filter:blur(.5rem) }
-        100%   {transform: translate(0, -100%) scale(1, 1)}
+        0%   {transform: translate(0, 100%) }
+        25%  {transform: translate(0, 100%); filter:blur(.5rem) }
+        75%  {transform: translate(0, 0%); filter:blur(.5rem) }
+        100% {transform: translate(0, 0%)}
     }
 }

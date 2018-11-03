@@ -115,16 +115,16 @@ appendPrototype(DefaultEditableModel, {
         });
         self.revert();
     },
-    getImages: function () {
+    crawlType: function (type) {
         var self = this;
-        var imageDtos = ['ComponentInspectionImage'];
+        var imageDtos =Array.isArray(type)? type: [type];
         var imgs = imageDtos.indexOf(ko.unwrap(self.DtoTypeName)) >= 0? [self] : [];
         self.__ko_mapping__.nested.forEach(function (nest) {
             var content = ko.unwrap(self[nest + editable.extension]);
             if (Array.isArray(content)) {
-                imgs = imgs.concat(content.reduce(function(col, cur){ return col.concat(cur.GetImages()) }, []));
+                imgs = imgs.concat(content.reduce(function (col, cur) { return col.concat(cur.crawlType(type)) }, []));
             } else if (content) {
-                imgs = imgs.concat(content.GetImages());
+                imgs = imgs.concat(content.crawlType(type));
             }
         });
         return imgs;
@@ -272,7 +272,7 @@ function ValidationModel(data, validation) {
         data.info.config.forEach(function (conf) {
             if (conf.Options) {
                 var val = data.GetLookupValue(conf.Name, currentData[conf.Name]);
-                currentData[conf.Name] = (val || {}).Value || currentData[conf.Name];
+                currentData[conf.Name] = (val || {}).Key || currentData[conf.Name];
             }
         })
 

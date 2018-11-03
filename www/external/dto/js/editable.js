@@ -95,7 +95,11 @@ function editable(properties, data) {
         self.changes().forEach(function (name) {
             // if (name != "Images") { 
                 var saveValue = createCopy(ko.unwrap(self[name + editable.extension]));
-                self[name](saveValue);
+                if(typeof self[name].push =='function'){ // is ObsevableArray
+                    var arrVal = self[name]();
+                    arrVal.splice(0, arrVal.length);
+                    saveValue.forEach(function(item){ arrVal.push(item); });
+                } else self[name](saveValue);
             // }
         });
         self.changes([]);

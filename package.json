@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.4.2",
     "cordova-android": "^6.2.1",
     "cordova-ios": "4.2.0",
     "cordova-plugin-buildinfo": "^2.0.2",
@@ -12,8 +13,10 @@
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-file": "^4.3.3",
     "cordova-plugin-network-information": "^2.0.1",
+    "cordova-plugin-webintent": "0.0.2",
     "cordova-plugin-whitelist": "1.2.2",
     "cordova-sqlite-storage": "git+https://github.com/litehelpers/Cordova-sqlite-storage.git",
+    "cordova-webintent": "git+https://github.com/cordova-misc/cordova-webintent.git",
     "cordova-windows": "4.4.2"
   },
   "devDependencies": {
@@ -56,7 +59,8 @@
       "cordova-plugin-network-information": {},
       "cordova-plugin-device": {},
       "cordova-plugin-camera": {},
-      "cordova-plugin-datetimepicker": {}
+      "cordova-plugin-datetimepicker": {},
+      "com.borismus.webintent": {}
     }
   },
   "-vs-binding": {

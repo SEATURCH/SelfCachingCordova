@@ -1,5 +1,6 @@
 var dm = require('./helper/dataManager.js');
 var pm = require('./helper/pictureManager.js');
+var navi = require('./helper/navigation.js');
 
 // var appModel = require('./application-model.js');
 var appModel = require('./helper/rootvm.js');
@@ -11,21 +12,24 @@ var app = {
     initialize: function() {
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
         document.addEventListener("pause",  this.onDevicePause, false);
+        document.addEventListener("backbutton", function(){
+            if($("#webModal").hasClass('show')) $("#webModal").modal('hide');
+            else  navi.backButton();
+        }, false);
     },
-
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
     },
     // Cleanup - save data to file and close db handle
     onDevicePause: function() {
-        return Promise.all([dm.cleanUp(), pm.cleanUp]);
+        return Promise.all([dm.cleanUp(), pm.cleanUp()]);
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
         window.rootLocation = cordova.file.externalApplicationStorageDirectory; // (window.cordova.platformId == 'android') ? cordova.file.dataDirectory : cordova.file.documentsDirectory;
         window.powertech = new networkCall();
         initDtoTemplate();
-
+        // viewmodel.onStart();
         dm.startUp().then(function(rsrc){
             $('body').append(rsrc.html);
             $('body').append('<style>' + (rsrc.css || '')  + '</style>');

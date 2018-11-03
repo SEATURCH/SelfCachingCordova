@@ -1,6 +1,10 @@
 <script id="select-template" type="text/html">
-    <select class="form-control form-control-sm" data-bind="value: value, btnOptions: options, optionsText: optionsText, optionsValue: optionsValue, optionsCaption: hint,  event: { change: validate }, css: {validatable: $data.validationErrorMsg}">asdf</select> 
+    <select class="form-control form-control-sm" data-bind="value: value, options: options, optionsText: optionsText, optionsValue: optionsValue, optionsCaption: hint,  event: { change: validate }, css: {validatable: $data.validationErrorMsg}">asdf</select> 
     <div class="validatable msg" data-bind="text:$data.validationErrorMsg"></div>
+</script>
+
+<script  type="text/html"id="display-select-template">
+    <span data-bind="text: ko.utils.getDropdownDisplay($data)"></span>
 </script>
 
 <script id="dropdown-template" type="text/html">
@@ -61,16 +65,28 @@
 </script>
 
 <script id="img-thumbnail-template" type="text/html">
-    <div class="dto-image-thumbnail">
-        <div class="img-loader" data-bind="visible: isLoading"></div>
-        <img data-bind="attr: {src: url },css: {hidden: !url()}">
+    <!-- ko foreach: images-->
+    <div class="dto-image-thumbnail" data-bind="click: selectedImage">
+        <!--<div class="img-loader" data-bind="visible: isLoading"></div>-->
+        <img data-bind="pictureURL: $data">
     </div>
+    <!-- /ko -->
 </script>
 <script id="modal-body" type="text/html">
     <div class="modal fade p-0" id="webModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div id="webModalContent" class="modal-content">
             </div>
+        </div>
+    </div>
+</script>
+
+
+<script type="text/html" id="image-viewer-template">
+    <div id="image-viewer-container" class="image-viewer-container">
+        <div id="image-viewer-shader" class="image-viewer-shader"></div>
+        <div id="image-viewer" class="image-viewer">
+            <img id="image-viewer-img" data-bind="pictureURL: $data" />
         </div>
     </div>
 </script>

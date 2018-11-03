@@ -98,4 +98,5 @@
     <plugin name="cordova-plugin-device" spec="^2.0.2" />
     <plugin name="cordova-plugin-camera" spec="^2.4.1" />
     <plugin name="cordova-plugin-datetimepicker" spec="^1.1.2" />
+    <plugin name="com.borismus.webintent" spec="https://github.com/cordova-misc/cordova-webintent.git" />
 </widget>

@@ -20,7 +20,7 @@ var config = {
       fs: 'empty'
     },
     entry: [
-        './www/scripts/helper/reqs.js',
+        './www/scripts/helper/_reqs.js',
         './www/scripts/index.js'
     ],
     output: {

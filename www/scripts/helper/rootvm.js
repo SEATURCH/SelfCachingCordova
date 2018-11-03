@@ -1,11 +1,11 @@
-var req = require('../requests.js');
 var authentication = require('./authentication.js');
 var dm = require('./dataManager.js');
 var pm = require('./pictureManager.js');
 var navi = require('./navigation.js');
 var pageInits = require('../app/initializers.js');
+var watch = require('./globalWatchers.js');
 
-function viewModel(initialData) {
+function viewModel() {
     var self = this;
     self.authentication = authentication;
 
@@ -15,7 +15,9 @@ function viewModel(initialData) {
     self.pageFramework = null;
 
     self.pageData = ko.observable(null);
-    navi.init(function(pathname, params){
+    self.navi = navi;
+    self.navi.init(function(pathname, params) {
+        self.pageData({});
         var parts = pathname.split('/').filter(function(part) { return part; });
         var currentPage = {
             Key: parts[0],
@@ -31,8 +33,9 @@ function viewModel(initialData) {
             pageInits.postAttach(pathname, sample);
             self.pageData(sample);
         });
-        
     });
+
+    self.processing = watch.processing.count;
 }
 
 appendPrototype(viewModel, {

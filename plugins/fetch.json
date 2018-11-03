@@ -70,5 +70,13 @@
     },
     "is_top_level": true,
     "variables": {}
+  },
+  "com.borismus.webintent": {
+    "source": {
+      "type": "registry",
+      "id": "https://github.com/cordova-misc/cordova-webintent.git"
+    },
+    "is_top_level": true,
+    "variables": {}
   }
 }

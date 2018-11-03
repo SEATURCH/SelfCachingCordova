@@ -31,7 +31,7 @@
     function controlDisplay(element, valueAccessor, allBindings, viewModel, bindingContext, isEdit) {
         var observable = valueAccessor();
 
-        // var xxx = String(valueAccessor);
+        var xxx = ko.unwrap(observable);
 
         var observableName = String(valueAccessor).split("return")[1].split(' ')[1];
         var observablePath = observableName.split('.');
@@ -64,7 +64,7 @@
         var templateId;
         if (lookups[property.Options]) {
             //select
-            templateId = 'dropdown-template';
+            templateId = 'select-template';
             controlVm.optionsValue = ko.unwrap(allBindings().optionsValue) || 'Key';
             controlVm.optionsText = ko.unwrap(allBindings().optionsText) || 'Value';
             controlVm.optionsDisplayText = ko.unwrap(allBindings().optionsDisplayText) || controlVm.optionsText;
@@ -91,6 +91,8 @@
 
         return { controlsDescendantBindings: true };
     }
+
+
 
     ko.bindingHandlers.btnOptions = {
         init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -126,16 +128,23 @@
         else return item[text];
     }
 
+    ko.utils.getOptionsDisplay = function (viewModel) {
+        var options = ko.unwrap(viewModel.options);
+        var selectedItem = null;
+        var value = ko.unwrap(viewModel.value)
+        if (value == null || value == '') return null;
+        options.forEach(function (item) {
+            if (ko.utils.optionsValue(item, viewModel) == value) selectedItem = item;
+        });
+        return ko.utils.optionsText(selectedItem, viewModel, true);
+    }
 
     ko.utils.getDropdownDisplay = function (viewModel) {
         var options = ko.unwrap(viewModel.options);
         var selectedItem = null;
         var value = ko.unwrap(viewModel.value)
-        if (value == null || value == '') return ko.unwrap(viewModel.optionsCaption)
-        options.forEach(function (item) {
-            if (ko.utils.optionsValue(item, viewModel) == value) selectedItem = item;
-        });
-        return ko.utils.optionsText(selectedItem, viewModel, true);
+        if (value == null || value == '') return ko.unwrap(viewModel.optionsCaption);
+        return ko.utils.getOptionsDisplay(viewModel);
     }
 
     ko.utils.setOptionsValue = function (item, viewModel) {
@@ -194,125 +203,153 @@
         }
     }
 
-    ko.bindingHandlers.imagesUpload = {
+    ko.bindingHandlers.imageList = {
         init: function (element, valueAccessor, allBindingsAccessor, data, bindingContext) {
             var observable = valueAccessor();
-            var instance = ko.bindingHandlers.imagesUpload.instanceCount++;
-            var input = $('<input class="dto-file-input" type="file" ' + 'id="file-input-' + instance + '"/>');
-            var label = $('<label class="dto-file-label btn btn-light btn-sm" for="file-input-' + instance + '">C</label>');
-            var thumbnails = $('<div class="dto-image-thumbnails" data-bind="foreach: images"></div>');
-
-            var thumbnailsVm = {
-                images: ko.observableArray()
-            };
-
-            $(thumbnails).append(document.getElementById('img-thumbnail-template').innerHTML);
-            $(element).append(input);
-            $(element).append(label);
-            $(element).append(thumbnails);
-            $(input).change(function (e) {
-                var files = e.target.files || e.dataTransfer.files;
-                for (var i = 0; i < files.length; i++) {
-                    file = files[i];
-                    var imageVM = {
-                        self: this,
-                        image: ko.observable(),
-                        isLoading: ko.observable(false),
-                        dataUrl: ko.observable(),
-                        hasData: ko.observable(false)
-                    };
-                    imageVM.url = ko.computed(function () {
-                        if (imageVM.hasData()) return imageVM.dataUrl();
-                        if (imageVM.image()) return imageVM.image().FileDataUrl();
-                        return '';
-                    })
-                    imageVM.isLoading(true);
-                    thumbnailsVm.images.push(imageVM);
-                    powertech.parseFile(file, function (content) {
-                        imageVM.dataUrl(content.contents);
-                        imageVM.hasData(true);
-
+            var value = ko.unwrap(observable);
+            var childBindingContext = ko.utils.extend(bindingContext, {
+                selectedImage: ko.observable(),
+                images: observable
+            });
+            //if (value.constructor.name == 'thumbnailsVm') {
+            //    childBindingContext = value;
+            //    vm = value;
+            //} else {
+            //    vm = new thumbnailsVm();               
+            //   childBindingContext = bindingContext.createChildContext(vm);
+            //}
+            var templateHtml = document.getElementById('image-viewer-template').innerHTML;
+            childBindingContext.selectedImage.subscribe(function (newValue) {
+                if (newValue) {
+                    $('body').append(templateHtml);
+                    $('#image-viewer-img').attr('src', ko.unwrap(newValue.url));
+                    ko.applyBindings(newValue, $('#image-viewer')[0]);
+                    $('#image-viewer').click(function (e) {
+                        if (e.target.tagName !== 'IMG')
+                            childBindingContext.selectedImage(null);
                     });
-
-                    powertech.fileUpload('/Files/Upload', file, function (response) {
-                        var mapped = defaultMap(response);
-                        mapped.ComponentInspectionId(ko.unwrap(data.Id));
-                        imageVM.image(mapped);
-                        imageVM.isLoading(false);
-                        observable.push(mapped);
-                    });
+                } else {
+                    document.getElementById("image-viewer-container").outerHTML = '';
                 }
-
             });
 
-            var childBindingContext = bindingContext.createChildContext(thumbnailsVm);
-            ko.applyBindingsToDescendants(childBindingContext, element);
+            $(element).addClass('dto-image-thumbnails');
+            $(element).append(document.getElementById('img-thumbnail-template').innerHTML);
+
+
+
+            ko.applyBindingsToDescendants(bindingContext, element);
             return { controlsDescendantBindings: true };
-        },
-        update: function (element, valueAccessor, allBindingsAccessor, data, context) {
-
-
         }
     }
-    ko.bindingHandlers.imagesUpload.instanceCount = 0;
+
+
+
+
 
 
     ko.bindingHandlers.modal = {
         init: function (element, valueAccessor, allBindings, data, context) {
             if ($("#webModal").length == 0) $('body').append($('#modal-body').html());
         },
-	    update: function (element, valueAccessor, allBindings, data, context) {
-	        var template = valueAccessor();
-	        var viewmodel = allBindings().modalVm;
-	        var webModal = $("#webModal");
-	        var content = $(document.getElementById("webModalContent"));
+        update: function (element, valueAccessor, allBindings, data, context) {
+            var template = valueAccessor();
+            var viewmodel = ko.unwrap(allBindings().modalVm);
+            var onOpen = ko.unwrap(allBindings().onOpen);
+            var staticModal = ko.unwrap(allBindings().static) || false;
 
-	        $(element).bind("click", function () {
-	            ko.cleanNode(webModal[0])
-	            content.empty();
-	            content.append($('#' + template).html());
-	            
-	            var innerBindingContext = viewmodel? context.createChildContext(viewModel) : context;
-	            ko.applyBindingsToDescendants(innerBindingContext, webModal[0]);
-	            webModal.modal();
-	        });
-	    }
+
+            var webModal = $("#webModal");
+            var content = $(document.getElementById("webModalContent"));
+
+            $(element).bind("click", function () {
+                ko.cleanNode(webModal[0])
+                content.empty();
+                content.append($('#' + template).html());
+               
+                var innerBindingContext = viewmodel ? context.createChildContext(viewmodel) : context;
+
+                ko.utils.extend(innerBindingContext, {
+                    closeModal: function (condition) {
+                        if (condition)
+                            webModal.modal('hide');
+                    }
+                });
+
+                if ($.isFunction(onOpen))
+                    onOpen(context.$data);
+                ko.applyBindingsToDescendants(innerBindingContext, webModal[0]);
+                webModal.modal({
+                    backdrop: staticModal ? 'static' : true,
+                    keyboard: !staticModal
+                });
+            });
+        }
     };
+
+
 
     ko.bindingHandlers.swipableTabs = {
-	    init: function (element, valueAccessor, allBindings, data, bindingContext) {
-	        var data = valueAccessor();
-	        //var swipeTemplate = allBindings().te;
-	        //$(element).addClass("swipe");
-	        // $(element).attr("id", swipeTemplate);
-	        // var template = "#" + swipeTemplate;
-	        //$(element).append($("#" + swipeTemplate).html());
-	        var lastItem = data.length ? data[data.length - 1] : null;
+        init: function (element, valueAccessor, allBindings, data, bindingContext) {
+            var data = valueAccessor();
+            //var swipeTemplate = allBindings().te;
+            //$(element).addClass("swipe");
+            // $(element).attr("id", swipeTemplate);
+            // var template = "#" + swipeTemplate;
+            //$(element).append($("#" + swipeTemplate).html());
+            var lastItem = data.length ? data[data.length - 1] : null;
 
-	        var vm = {};
-	        vm.items = data;
-	        vm.currentPage = ko.observable(0);
-	        vm.afterRender = function (array, item) {
-	            if (item == lastItem) {
-	                window.mySwipe = new Swipe($(element).find('.swipe')[0], {
-	                    startSlide: 0,
-	                    speed: 150,
-	                    // auto: 3000,
-	                    draggable: true,
-	                    autoRestart: false,
-	                    continuous: false,
-	                    // disableScroll: true,
-	                    stopPropagation: true,
-	                    callback: function (index, element) { },
-	                    transitionEnd: function (index, element) { vm.currentPage(index); }
-	                });
-	            }
-	        };
-	        var childBindingContext = bindingContext.createChildContext(vm);
-	        ko.applyBindingsToDescendants(childBindingContext, element);
+            var vm = {};
+            vm.items = data;
+            vm.currentPage = ko.observable(0);
+            vm.afterRender = function (array, item) {
+                if (item == lastItem) {
+                    window.mySwipe = new Swipe($(element).find('.swipe')[0], {
+                        startSlide: 0,
+                        speed: 150,
+                        // auto: 3000,
+                        draggable: true,
+                        autoRestart: false,
+                        continuous: false,
+                        // disableScroll: true,
+                        stopPropagation: true,
+                        callback: function (index, element) { },
+                        transitionEnd: function (index, element) { vm.currentPage(index); }
+                    });
+                }
+            };
+            var childBindingContext = bindingContext.createChildContext(vm);
+            ko.applyBindingsToDescendants(childBindingContext, element);
 
-	        return { controlsDescendantBindings: true };
+            return { controlsDescendantBindings: true };
 
-	    }
+        }
     };
+
+    ko.bindingHandlers.fadeVisible = {
+        init: function (element, valueAccessor, allBindings, data, bindingContext) {
+            var observable = valueAccessor();
+            var value = ko.unwrap(observable);
+            $(element).addClass('fade-visible');
+            if (!value) {
+                $(element).addClass('hidden');
+                $(element).hide();
+            }
+        },
+        update: function (element, valueAccessor, allBindings, data, bindingContext) {
+            var observable = valueAccessor();
+            var value = ko.unwrap(observable);
+            if (value) {
+                $(element).show();
+                window.setTimeout(function () {
+                    $(element).removeClass('hidden');
+                }, 0);
+            } else {
+                $(element).addClass('hidden');
+                window.setTimeout(function () {
+                    $(element).hide();
+                }, 200);
+            }
+        }
+    }
 };

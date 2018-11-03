@@ -4,6 +4,7 @@
 // -- postAttach: metadata and additional functions to bind against mapped viewmodel, essentailly mobile onlyt PageViewModel scripts 
 var dm = require('../helper/dataManager.js');
 var pm = require('../helper/pictureManager.js');
+var req = require('../requests.js');
 
 var endpts = {
 	"/Inspections/Index": { 
@@ -21,7 +22,6 @@ var endpts = {
 		}
 	},
 	"/Inspections/Edit": { 
-		IsRoot: true,
 		init: function(param) {
 			return dm.get('Inspection').then(function(allInsp) {
 				return allInsp.find(function(insp) {
@@ -39,6 +39,7 @@ var endpts = {
 				var newInsp = defaultMap(null, "Inspection");
 				var targetVehicle = $.extend({}, res.Vehicles.find(function(veh) { return veh.Key == param.vehicleId }));
 				newInsp.Vehicle = defaultMap(targetVehicle.Data);
+				newInsp.VehicleId =  param.vehicleId;
 				return new dm.DataModel(null, ko.mapping.toJS(newInsp));
 			});
 		},
@@ -59,7 +60,7 @@ var stdFormSubmit = function() {
 	window.communicationManager = {
 	    submitData: function(url, data) {
 	        this.data.deepComplete();
-	        return dm.write(ko.unwrap(this.data.DtoTypeName), data, ko.unwrap(this.data.AppUUID));
+	        return dm.write(ko.unwrap(this.data.DtoTypeName), ko.mapping.toJS(this.data), ko.unwrap(this.data.AppUUID));
 	    }
 	}
 }
@@ -67,16 +68,24 @@ var stdFormSubmit = function() {
 // Standard DefaultEditablemodel list submission 
 var stdFormListSubmit = function() {
 	var self = this;
-    var dataList = self.data;
+    var dataList = ko.unwrap(self.data);
     if(!Array.isArray(dataList)) dataList = [dataList];
-    var allImages = dataList.reduce(function(col, cur){ return col.concat(cur.getImages()); }, [])
+    var allImages = dataList.reduce(function(col, cur){ return col.concat(cur.crawlType('FileData')); }, [])
         .filter(function(imgDef){ return !ko.unwrap(imgDef.Id) });
 
-    return pm.uploadImages(allImages).then(function(res) {
+    return pm.uploadImages(allImages).then(function(newPicsInfo) {
+    	newPicsInfo.forEach(function(info, idx){
+    		allImages[idx].Id(info.Id);
+    	});
         dataList = ko.mapping.toJS(dataList);
-        return req.postTo(self.UploadUrl, {data: dataList} ).then(function(res) {
-            console.log("Successful Upload");
-        });
+        return req.postTo(self.UploadUrl, {data: dataList} )
+    }).then(function(res) {
+        console.log("Successful Upload");
+    	var saveProm = [];
+    	dataList.forEach(function(up){
+        	saveProm.push(dm.write(ko.unwrap(up.DtoTypeName), ko.mapping.toJS(up), ko.unwrap(up.AppUUID)));
+    	});
+    	return Promise.all(saveProm);
     });
 }
 
@@ -88,7 +97,7 @@ module.exports = {
 		return endpts[url].postAttach(vm);
 	},
 	isRoot: function(url) {
-		var rt = (endpts[url] || {}).isRoot ? true: false ;
+		var rt = (endpts[url] || {}).IsRoot ? true: false ;
 		return rt;
 	}
 }

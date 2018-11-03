@@ -15,16 +15,6 @@ var itemExtMimes = {
 var versionFile = "version.txt";
 var authFile = "auth.txt";
 
-var getFileHandle = function(fs, fname) {
-    return new Promise(function (res, rej) {
-        fs.getFile(fileName, { create: true, exclusive: false }, function (fe) {
-            res(fe);
-        }, function(err){
-            rej(new Error(err));
-        });
-    });
-}
-
 var moveFile = function(destFs, fname, uri) {
     return new Promise(function (res, rej) {
         window.resolveLocalFileSystemURL(uri, function (fe) {
@@ -57,7 +47,7 @@ var writeFile = function (fs, fileName, contentBlob) {
     });
 }
 
-var readFile = function (fs, fileName) {
+var readFile = function (fs, fileName, method) {
     return new Promise(function (res, rej) {
         fs.getFile(fileName, { create: true, exclusive: false }, function (fe) {
             fe.file(function (file) {
@@ -66,7 +56,13 @@ var readFile = function (fs, fileName) {
                     var data = e.target.result;
                     res(data);
                 };
-                reader.readAsText(file);
+                switch(method) {
+                    case "ArrayBuffer":
+                        reader.readAsArrayBuffer(file);
+                        break;
+                    default:
+                        reader.readAsText(file);
+                }
             }, function(err){
                 if(VERBOSE) console.log("Unable to read File");
                 rej(new Error(err));
@@ -195,7 +191,7 @@ var retrieveResources = function() {
     if(net.checkConnection()) {
         return Promise.all([Math.random(), req.getVersion() ])
         // return Promise.all([readVersion(), req.getVersion() ])
-        .catch(function(){
+        .catch(function(err){
             return readTemplates();
         })
         .then(function(values){
@@ -216,7 +212,11 @@ var retrieveResources = function() {
 
 var FileSys = {};
 var parsePath = function(pathname){
-    var subdir = authentication.currentUserId()
+    var subdir = authentication.currentUserId();
+    // Bascially checking if passed in absolute path, changes it to local
+    var localcheck = '/' + subdir +  '/';
+    if(pathname.indexOf(localcheck) >= 0)
+        pathname = pathname.substring(pathname.indexOf(localcheck) + localcheck.length, pathname.length);
     var route = pathname.split('/');
     route = [subdir].concat(route.filter(function(f) { return f; }));
     return {
@@ -227,22 +227,20 @@ var parsePath = function(pathname){
 
 
 // Data json handlers
-var readFrom = function(pathString) {
+var readFrom = function(pathString, method) {
     var pathing = parsePath(pathString);
     return resolveFSHandle(pathing.subdir).then(function(fs) {
-        return readFile(fs, pathing.file);
-    }).then(function(res) {
-        return JSON.parse(res || "[]");
+        return readFile(fs, pathing.file, method);
     }).catch(function (d) {
         if(VERBOSE) console.log("Cannot read " + pathing.file +" from '" + subdir + "' from cache");
         throw d;
     });
 };
 
-var saveTo = function(data, pathString) {
+var saveTo = function(data, pathString, type) {
     var pathing = parsePath(pathString);
     return resolveFSHandle(pathing.subdir).then(function (fs) {
-        var dataObj = new Blob([JSON.stringify(data)], { type: "application/json" });
+        var dataObj = new Blob([JSON.stringify(data)], { type: type });
         return writeFile(fs, pathing.file, dataObj);
     }).catch(function (d) {
         if(VERBOSE) console.log("Cannot save data '" + pathing.file + "' into '" + subdir + "' in cache");
@@ -260,20 +258,10 @@ var moveTo = function(uri, pathString) {
     });
 }
 
-var getFile = function(pathString) {
-    var pathing = parsePath(pathString);
-    return resolveFSHandle(pathing.subdir).then(function (fs) {
-        return getFile(fs, pathing.file);
-    }).catch(function (d) {
-        if(VERBOSE) console.log("Cannot get file handle for '" + pathing.file + "' in '" + subdir + "' in cache");
-        throw d;
-    });
-}
-
 module.exports = {
     retrieveResources: retrieveResources,
     readFrom: readFrom,
     saveTo: saveTo,
     moveTo: moveTo,
-    getFile: getFile
+    apk: apk
 }

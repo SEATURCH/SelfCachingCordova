@@ -24,6 +24,7 @@ var get = function(table) {
 			return Promise.resolve(staticCache[table]);
 		} else {
 			return cached.readFrom(table + '.json').then(function(data){
+        		data = JSON.parse(data || "[]");
 				staticCache[table] = data;
 				return data;
 			});
@@ -40,7 +41,7 @@ var write = function(table, data, AppUUID) {
 		var newEntry = new DataModel(AppUUID, data);
 		return get(table).then(function(currentSet){
 			var existingIndex = currentSet.findIndex(function(cur) { return cur.AppUUID == AppUUID; });
-			if (existingIndex != -1) currentSet.splice(existing, 1, newEntry);
+			if (existingIndex != -1) currentSet.splice(existingIndex, 1, newEntry);
 			else currentSet.push(newEntry);
 		});
 	}
@@ -76,7 +77,7 @@ var cleanUp = function(saveOnly) {
 	var promiseAll = [];
 	if(!saveOnly) promiseAll.push(db.close());
 	Object.keys(staticCache).forEach(function(table){
-		promiseAll.push(cached.saveTo(staticCache[table], table + '.json'));
+		promiseAll.push(cached.saveTo(staticCache[table], table + '.json', "application/json"));
 	});
 	return Promise.all(promiseAll);
 }

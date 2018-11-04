@@ -1,7 +1,6 @@
 // Assume only need 1 file of each, concat all incoming of type;
 var req = require('../requests.js');
 var authentication = require('./authentication.js');
-var net = require('./network.js');
 
 var templateFileName = "app";
 var itemExtMimes = {
@@ -187,16 +186,16 @@ var readTemplates = function () {
 }
 
 
-var retrieveResources = function() {
-    if(net.checkConnection()) {
-        return Promise.all([Math.random(), req.getVersion() ])
+var retrieveResources = function(newVersion) {
+    if(newVersion) {
+        return new Promise.resolve(Math.random()) 
+        //readVersion() //Promise.all([Math.random(), req.getVersion() ])
         // return Promise.all([readVersion(), req.getVersion() ])
         .catch(function(err){
             return readTemplates();
         })
-        .then(function(values){
-            var newVersion = values[1].Version;
-            if(values[0] == newVersion) return readTemplates();
+        .then(function(val){
+            if(val == newVersion) return readTemplates();
             else return req.getTemplates().then(function(retrieved) {
                 return saveTemplates(retrieved).then(function() {
                     return saveVersion(newVersion);
@@ -240,7 +239,7 @@ var readFrom = function(pathString, method) {
 var saveTo = function(data, pathString, type) {
     var pathing = parsePath(pathString);
     return resolveFSHandle(pathing.subdir).then(function (fs) {
-        var dataObj = new Blob([JSON.stringify(data)], { type: type });
+        var dataObj = new Blob([data], { type: type });
         return writeFile(fs, pathing.file, dataObj);
     }).catch(function (d) {
         if(VERBOSE) console.log("Cannot save data '" + pathing.file + "' into '" + subdir + "' in cache");

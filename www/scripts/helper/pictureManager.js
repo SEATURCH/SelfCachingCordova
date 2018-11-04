@@ -86,7 +86,7 @@ var uploadImages = function(ImgDefs){
 
 var cleanUp = function(saveOnly) {
 	if(picturesCache)
-	return cache.saveTo(picturesCache || [], mapPath, "application/json");
+	return cache.saveTo(JSON.stringify(picturesCache || []), mapPath, "application/json");
 }
 
 

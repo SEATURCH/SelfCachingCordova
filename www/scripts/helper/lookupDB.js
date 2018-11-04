@@ -1,5 +1,4 @@
 var req = require('../requests.js');
-var net = require('./network.js');
 
 var db = null;
 var cachedLkps = {};
@@ -222,27 +221,25 @@ var getEnums = function(data) {
 }
 
 var updateDB = function() {
-	if(net.checkConnection()) {
-		var params = [ {query: databaseQueries('version_create')}, {query: databaseQueries("version_check")} ];
-		return executeQuery(params).then(function(pRes) {
-			return pRes[1].rs.rows.item(0);
-		}).then(function(date) {
-			if(VERBOSE) console.log("Retrieving udpates since date");
-			return req.dynamicLookups({ lastUpdated: date ? date.Date : null });
-		}).then(function(res){
-			if(VERBOSE) console.log("Creating tables");
-			return createTable(Object.keys(res.lookups)).then(function(){ return res.lookups; });
-		}).then(function(res){
-			if(VERBOSE) console.log("Updating properties");
-			return upsertEntries(res);
-		}).then(function(res) {
-			if(VERBOSE) console.log("Updating version date");
-			if(res) return executeQuery({query: databaseQueries('version_replace'), values: [(new Date).toISOString()]});
-		}).catch(function(err){
-			if(VERBOSE) console.log(err);
-			return;
-		});
-	}
+	var params = [ {query: databaseQueries('version_create')}, {query: databaseQueries("version_check")} ];
+	return executeQuery(params).then(function(pRes) {
+		return pRes[1].rs.rows.item(0);
+	}).then(function(date) {
+		if(VERBOSE) console.log("Retrieving udpates since date");
+		return req.dynamicLookups({ lastUpdated: date ? date.Date : null });
+	}).then(function(res){
+		if(VERBOSE) console.log("Creating tables");
+		return createTable(Object.keys(res.lookups)).then(function(){ return res.lookups; });
+	}).then(function(res){
+		if(VERBOSE) console.log("Updating properties");
+		return upsertEntries(res);
+	}).then(function(res) {
+		if(VERBOSE) console.log("Updating version date");
+		if(res) return executeQuery({query: databaseQueries('version_replace'), values: [(new Date).toISOString()]});
+	}).catch(function(err){
+		if(VERBOSE) console.log(err);
+		return;
+	});
 }
 
 module.exports = {

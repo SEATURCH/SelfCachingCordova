@@ -56,8 +56,12 @@ var initializePage = function(currentPgDef){
 	return db.getEnums(dynmEnums);
 }
 
-var startUp = function(){
-	return Promise.all([cached.retrieveResources(), db.updateDB()]).then(function(result){
+// If no version provided, assume no internet.
+var startUp = function(version){
+	var startProm = [cached.retrieveResources(version)];
+	if(version) startProm.push(db.updateDB());
+	
+	return Promise.all(startProm).then(function(result){
         var rsrc = result[0];
         var pgConfig = rsrc.pages;
         if(pgConfig) {
@@ -77,7 +81,7 @@ var cleanUp = function(saveOnly) {
 	var promiseAll = [];
 	if(!saveOnly) promiseAll.push(db.close());
 	Object.keys(staticCache).forEach(function(table){
-		promiseAll.push(cached.saveTo(staticCache[table], table + '.json', "application/json"));
+		promiseAll.push(cached.saveTo(JSON.stringify(staticCache[table]), table + '.json', "application/json"));
 	});
 	return Promise.all(promiseAll);
 }
